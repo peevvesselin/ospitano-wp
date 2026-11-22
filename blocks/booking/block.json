@@ -1,0 +1,17 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "ospitano/booking",
+	"title": "OSPITANO Booking",
+	"category": "widgets",
+	"icon": "calendar-alt",
+	"description": "Online booking form of your hotel.",
+	"keywords": ["hotel", "booking", "reservation", "резервация"],
+	"textdomain": "ospitano-booking",
+	"attributes": {
+		"hotel": { "type": "string", "default": "" },
+		"lang": { "type": "string", "default": "auto" }
+	},
+	"supports": { "html": false, "align": ["wide", "full"] },
+	"editorScript": "file:./editor.js"
+}

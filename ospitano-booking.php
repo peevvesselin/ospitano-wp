@@ -27,7 +27,7 @@ define( 'OSPITANO_BOOKING_DEFAULT_CORE', 'https://core.ospitano.eu' );
 /**
  * Settings with defaults.
  *
- * @return array{core_url:string,hotel:string,lang:string,accent:string}
+ * @return array{core_url:string,hotel:string,lang:string,accent:string,button:string}
  */
 function ospitano_booking_settings() {
 	$saved = get_option( 'ospitano_booking', array() );
@@ -39,6 +39,7 @@ function ospitano_booking_settings() {
 			'hotel'    => '',
 			'lang'     => 'auto',
 			'accent'   => '',
+			'button'   => '',
 		)
 	);
 }
@@ -128,6 +129,27 @@ add_action(
 		register_block_type(
 			__DIR__ . '/blocks/booking',
 			array( 'render_callback' => fn( $attributes ) => ospitano_booking_render( $attributes ) )
+		);
+	}
+);
+
+/**
+ * Floating "Book" button and pop-up forms on every page, the same script that non-WordPress sites use.
+ * Also makes any link to #book or #spa open the booking or SPA form.
+ */
+add_action(
+	'wp_footer',
+	function () {
+		$s = ospitano_booking_settings();
+		if ( '' === $s['hotel'] || '1' !== $s['button'] ) {
+			return;
+		}
+		printf(
+			'<script src="%s" data-hotel="%s" data-lang="%s"%s defer></script>' . "\n",
+			esc_url( untrailingslashit( $s['core_url'] ) . '/widget/v1/ospitano.js?ver=' . OSPITANO_BOOKING_VERSION ),
+			esc_attr( sanitize_title( $s['hotel'] ) ),
+			esc_attr( ospitano_booking_language( $s['lang'] ) ),
+			$s['accent'] ? ' data-accent="' . esc_attr( $s['accent'] ) . '"' : ''
 		);
 	}
 );

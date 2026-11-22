@@ -37,6 +37,7 @@ add_action(
 						'hotel'    => sanitize_title( $input['hotel'] ?? '' ),
 						'lang'     => in_array( $lang, array( 'auto', 'bg', 'en', 'ro', 'de', 'ru' ), true ) ? $lang : 'auto',
 						'accent'   => sanitize_hex_color( $input['accent'] ?? '' ) ?: '',
+						'button'   => empty( $input['button'] ) ? '' : '1',
 					);
 				},
 			)
@@ -81,6 +82,11 @@ function ospitano_booking_settings_page() {
 				<tr>
 					<th scope="row"><label for="osp-accent"><?php esc_html_e( 'Button colour', 'ospitano-booking' ); ?></label></th>
 					<td><input id="osp-accent" name="ospitano_booking[accent]" type="text" placeholder="#A98A5F" value="<?php echo esc_attr( $s['accent'] ); ?>"></td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Book button', 'ospitano-booking' ); ?></th>
+					<td><label><input name="ospitano_booking[button]" type="checkbox" value="1" <?php checked( $s['button'], '1' ); ?>>
+						<?php esc_html_e( 'Show a floating "Book" button on every page. Links to #book and #spa open the booking and SPA forms.', 'ospitano-booking' ); ?></label></td>
 				</tr>
 				<tr>
 					<th scope="row"><label for="osp-core"><?php esc_html_e( 'Platform address', 'ospitano-booking' ); ?></label></th>

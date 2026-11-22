@@ -14,3 +14,7 @@ Build a release zip: `git archive --prefix=ospitano-booking/ -o ospitano-booking
 Ако на сайта има данни от MotoPress Hotel Booking, в Настройки → OSPITANO Booking се появява бутон „Download export“.
 Той сваля един JSON файл (`ospitano-import/1`) с типовете стаи, стаите, сезонните цени, услугите и резервациите.
 Същото от командния ред: `wp ospitano export --file=hotel.json`. Само чете базата и не променя нищо на сайта.
+
+## SPA
+
+Шорткод `[ospitano_spa]` показва записване за масаж, сауна и други услуги с час. Услугите се настройват в админа на OSPITANO (Услуги → „Записване с час“).

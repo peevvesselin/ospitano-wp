@@ -62,8 +62,18 @@ function ospitano_booking_language( $requested = '' ) {
 	return in_array( $lang, $supported, true ) ? $lang : 'bg';
 }
 
-/** Renders the booking form. Used by the shortcode and the block. */
+/** Renders the room booking form. Used by the shortcode and the block. */
 function ospitano_booking_render( $atts = array() ) {
+	return ospitano_booking_element( 'ospitano-booking', $atts, 'ospitano_booking' );
+}
+
+/** Renders the SPA form: [ospitano_spa]. */
+function ospitano_spa_render( $atts = array() ) {
+	return ospitano_booking_element( 'ospitano-spa', $atts, 'ospitano_spa' );
+}
+
+/** Shared markup for the OSPITANO web components. */
+function ospitano_booking_element( $tag, $atts, $shortcode ) {
 	$settings = ospitano_booking_settings();
 	$atts     = shortcode_atts(
 		array(
@@ -71,7 +81,7 @@ function ospitano_booking_render( $atts = array() ) {
 			'lang'  => $settings['lang'],
 		),
 		$atts,
-		'ospitano_booking'
+		$shortcode
 	);
 
 	if ( '' === $atts['hotel'] ) {
@@ -81,7 +91,7 @@ function ospitano_booking_render( $atts = array() ) {
 	}
 
 	$core = untrailingslashit( esc_url_raw( $settings['core_url'] ) );
-	wp_enqueue_script( 'ospitano-booking-widget', $core . '/widget/v1/ospitano-booking.js', array(), OSPITANO_BOOKING_VERSION, true );
+	wp_enqueue_script( $tag . '-widget', $core . '/widget/v1/' . $tag . '.js', array(), OSPITANO_BOOKING_VERSION, true );
 
 	$style = '';
 	if ( preg_match( '/^#[0-9a-fA-F]{3,6}$/', (string) $settings['accent'] ) ) {
@@ -89,7 +99,8 @@ function ospitano_booking_render( $atts = array() ) {
 	}
 
 	return sprintf(
-		'<ospitano-booking hotel="%s" lang="%s" api="%s"%s></ospitano-booking>',
+		'<%1$s hotel="%2$s" lang="%3$s" api="%4$s"%5$s></%1$s>',
+		$tag,
 		esc_attr( sanitize_title( $atts['hotel'] ) ),
 		esc_attr( ospitano_booking_language( $atts['lang'] ) ),
 		esc_attr( $core ),
@@ -98,12 +109,13 @@ function ospitano_booking_render( $atts = array() ) {
 }
 
 add_shortcode( 'ospitano_booking', 'ospitano_booking_render' );
+add_shortcode( 'ospitano_spa', 'ospitano_spa_render' );
 
 /** The widget loads as a module-free deferred script. */
 add_filter(
 	'script_loader_tag',
 	function ( $tag, $handle ) {
-		return 'ospitano-booking-widget' === $handle ? str_replace( ' src=', ' defer src=', $tag ) : $tag;
+		return in_array( $handle, array( 'ospitano-booking-widget', 'ospitano-spa-widget' ), true ) ? str_replace( ' src=', ' defer src=', $tag ) : $tag;
 	},
 	10,
 	2

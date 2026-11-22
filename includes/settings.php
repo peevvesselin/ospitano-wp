@@ -37,7 +37,11 @@ add_action(
 						'hotel'    => sanitize_title( $input['hotel'] ?? '' ),
 						'lang'     => in_array( $lang, array( 'auto', 'bg', 'en', 'ro', 'de', 'ru' ), true ) ? $lang : 'auto',
 						'accent'   => sanitize_hex_color( $input['accent'] ?? '' ) ?: '',
-						'button'   => empty( $input['button'] ) ? '' : '1',
+						'button'        => empty( $input['button'] ) ? '' : '1',
+						'replace'       => in_array( $input['replace'] ?? 'off', array( 'off', 'preview', 'live' ), true ) ? $input['replace'] : 'off',
+						'results_page'  => absint( $input['results_page'] ?? 0 ),
+						'checkout_page' => absint( $input['checkout_page'] ?? 0 ),
+						'terms_page'    => absint( $input['terms_page'] ?? 0 ),
 					);
 				},
 			)
@@ -87,6 +91,45 @@ function ospitano_booking_settings_page() {
 					<th scope="row"><?php esc_html_e( 'Book button', 'ospitano-booking' ); ?></th>
 					<td><label><input name="ospitano_booking[button]" type="checkbox" value="1" <?php checked( $s['button'], '1' ); ?>>
 						<?php esc_html_e( 'Show a floating "Book" button on every page. Links to #book and #spa open the booking and SPA forms.', 'ospitano-booking' ); ?></label></td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Booking pages', 'ospitano-booking' ); ?></th>
+					<td>
+						<?php
+						foreach ( array(
+							'results_page'  => __( 'Search results ([ospitano_results])', 'ospitano-booking' ),
+							'checkout_page' => __( 'Checkout ([ospitano_checkout])', 'ospitano-booking' ),
+							'terms_page'    => __( 'Terms and conditions', 'ospitano-booking' ),
+						) as $key => $label ) {
+							echo '<p><label>' . esc_html( $label ) . '<br>';
+							wp_dropdown_pages(
+								array(
+									'name'              => 'ospitano_booking[' . esc_attr( $key ) . ']',
+									'selected'          => (int) $s[ $key ],
+									'show_option_none'  => __( '— same as the old booking plugin —', 'ospitano-booking' ),
+									'option_none_value' => '0',
+									'post_status'       => array( 'publish', 'private' ),
+								)
+							);
+							echo '</label></p>';
+						}
+						?>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="osp-replace"><?php esc_html_e( 'Replace the old booking plugin', 'ospitano-booking' ); ?></label></th>
+					<td><select id="osp-replace" name="ospitano_booking[replace]">
+						<?php
+						foreach ( array(
+							'off'     => __( 'Off: visitors and you see the old booking', 'ospitano-booking' ),
+							'preview' => __( 'Preview: only administrators, after opening a page with ?ospitano_preview=1', 'ospitano-booking' ),
+							'live'    => __( 'Live: everyone sees the OSPITANO booking', 'ospitano-booking' ),
+						) as $code => $label ) {
+							printf( '<option value="%s"%s>%s</option>', esc_attr( $code ), selected( $s['replace'], $code, false ), esc_html( $label ) );
+						}
+						?>
+					</select>
+					<p class="description"><?php esc_html_e( 'Shows the OSPITANO search, results and checkout in place of the old plugin\'s, on the same pages and in the same design. Nothing in the pages is edited, so "Off" brings the old booking back at once.', 'ospitano-booking' ); ?></p></td>
 				</tr>
 				<tr>
 					<th scope="row"><label for="osp-core"><?php esc_html_e( 'Platform address', 'ospitano-booking' ); ?></label></th>

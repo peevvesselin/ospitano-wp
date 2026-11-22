@@ -55,6 +55,128 @@ function ospitano_migrate_text( $text ) {
 	return array( ospitano_migrate_lang() => wp_strip_all_tags( (string) $text ) );
 }
 
+/** Main photo first, then the gallery, as full-size URLs. */
+function ospitano_migrate_images( $id ) {
+	$ids   = array();
+	$thumb = (int) get_post_thumbnail_id( $id );
+	if ( $thumb ) {
+		$ids[] = $thumb;
+	}
+	$gallery = ospitano_migrate_meta( $id, 'mphb_gallery', '' );
+	foreach ( is_array( $gallery ) ? $gallery : explode( ',', (string) $gallery ) as $g ) {
+		$ids[] = (int) $g;
+	}
+	$urls = array();
+	foreach ( array_unique( array_filter( $ids ) ) as $att ) {
+		$u = wp_get_attachment_image_url( $att, 'full' );
+		if ( $u ) {
+			$urls[] = $u;
+		}
+	}
+	return array_slice( $urls, 0, 30 );
+}
+
+/** Room facts shown to guests: amenities, view, size, bed. Labels in the site language. */
+function ospitano_migrate_details( $id ) {
+	$bg     = 'bg' === ospitano_migrate_lang();
+	$label  = function ( $bg_text, $en_text ) use ( $bg ) {
+		return ospitano_migrate_text( $bg ? $bg_text : $en_text );
+	};
+	$out    = array();
+	$terms  = get_the_terms( $id, 'mphb_room_type_facility' );
+	if ( is_array( $terms ) && $terms ) {
+		$out[] = array( 'label' => $label( 'Удобства', 'Amenities' ), 'value' => ospitano_migrate_text( implode( ', ', wp_list_pluck( $terms, 'name' ) ) ) );
+	}
+	$view = (string) ospitano_migrate_meta( $id, 'mphb_view', '' );
+	if ( '' !== $view ) {
+		$out[] = array( 'label' => $label( 'Изглед', 'View' ), 'value' => ospitano_migrate_text( $view ) );
+	}
+	$size = (int) ospitano_migrate_meta( $id, 'mphb_size', 0 );
+	if ( $size ) {
+		$out[] = array( 'label' => $label( 'Размер', 'Size' ), 'value' => ospitano_migrate_text( $size . ' м²' ) );
+	}
+	$bed = (string) ospitano_migrate_meta( $id, 'mphb_bed', '' );
+	if ( '' !== $bed ) {
+		$out[] = array( 'label' => $label( 'Тип легло', 'Bed type' ), 'value' => ospitano_migrate_text( $bed ) );
+	}
+	return $out;
+}
+
+/** The site-wide deposit rule, applied to every rate plan. */
+function ospitano_migrate_deposit() {
+	$amount_type = (string) get_option( 'mphb_payment_amount_type', 'full' );
+	if ( 'deposit' !== $amount_type ) {
+		return array( 'deposit_type' => 'full' === $amount_type ? 'full' : 'none' );
+	}
+	$type   = (string) get_option( 'mphb_payment_deposit_type', 'percent' );
+	$amount = (float) get_option( 'mphb_payment_deposit_amount', 0 );
+	$days   = get_option( 'mphb_payment_deposit_time_frame', '' );
+	$out    = 'percent' === $type
+		? array( 'deposit_type' => 'percent', 'deposit_value' => (int) round( $amount ) )
+		: array( 'deposit_type' => 'first_night' );
+	if ( '' !== (string) $days && is_numeric( $days ) ) {
+		$out['deposit_full_within_days'] = (int) $days;
+	}
+	return $out;
+}
+
+function ospitano_migrate_option_bool( $name ) {
+	$v = get_option( $name, null );
+	return null === $v ? null : in_array( (string) $v, array( '1', 'yes', 'on', 'true' ), true );
+}
+
+function ospitano_migrate_time( $v ) {
+	return preg_match( '/^(\d{1,2}):(\d{2})/', (string) $v, $m ) ? sprintf( '%02d:%s', $m[1], $m[2] ) : null;
+}
+
+/** Discount codes. Percentage codes move as they are; other kinds are listed for a person to check. */
+function ospitano_migrate_coupons( &$warnings ) {
+	$out = array();
+	foreach ( ospitano_migrate_posts( 'mphb_coupon', array( 'publish' ) ) as $p ) {
+		$type   = (string) ospitano_migrate_meta( $p->ID, '_mphb_type', 'percentage' );
+		$amount = (float) ospitano_migrate_meta( $p->ID, '_mphb_amount', 0 );
+		if ( $amount <= 0 || '' === trim( $p->post_title ) ) {
+			continue;
+		}
+		$row = array(
+			'code'       => strtoupper( trim( $p->post_title ) ),
+			'type'       => 'percentage' === $type ? 'percent' : 'fixed',
+			'value'      => 'percentage' === $type ? (int) round( $amount ) : ospitano_migrate_cents( $amount ),
+			'label'      => $p->post_excerpt ? ospitano_migrate_text( $p->post_excerpt ) : null,
+			'valid_from' => ospitano_migrate_meta( $p->ID, '_mphb_check_in_date_after' ),
+			'valid_to'   => ospitano_migrate_meta( $p->ID, '_mphb_check_out_date_before' ),
+			'min_nights' => (int) ospitano_migrate_meta( $p->ID, '_mphb_min_nights', 1 ) ?: 1,
+			'max_nights' => (int) ospitano_migrate_meta( $p->ID, '_mphb_max_nights', 0 ) ?: null,
+			'max_uses'   => (int) ospitano_migrate_meta( $p->ID, '_mphb_usage_limit', 0 ) ?: null,
+		);
+		if ( ! in_array( $type, array( 'percentage', 'per_accomm' ), true ) ) {
+			/* translators: 1: code, 2: kind */
+			$warnings[] = sprintf( 'Code %1$s is of kind "%2$s"; it was exported as a fixed amount per booking. Please check it.', $row['code'], $type );
+		}
+		$out[] = array_filter(
+			$row,
+			function ( $v ) {
+				return null !== $v && '' !== $v;
+			}
+		);
+	}
+	return $out;
+}
+
+/** Payment and stay options of the old plugin, without anything secret. */
+function ospitano_migrate_payment_options() {
+	global $wpdb;
+	$rows = $wpdb->get_results( "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'mphb\\_%' AND (option_name LIKE '%deposit%' OR option_name LIKE '%amount_type%' OR option_name LIKE '%check\\_in%' OR option_name LIKE '%check\\_out%' OR option_name LIKE '%\\_enable' OR option_name LIKE '%confirmation%') LIMIT 80" ); // phpcs:ignore WordPress.DB
+	$out  = array();
+	foreach ( (array) $rows as $r ) {
+		if ( preg_match( '/secret|key|token|pass|webhook|signature/i', $r->option_name ) || strlen( (string) $r->option_value ) > 60 ) {
+			continue;
+		}
+		$out[ $r->option_name ] = (string) $r->option_value;
+	}
+	return $out;
+}
+
 /**
  * Builds the export.
  *
@@ -103,6 +225,10 @@ function ospitano_migrate_build( &$warnings = array() ) {
 			'max_adults'    => max( 1, $adults ),
 			'max_children'  => max( 0, $children ),
 			'max_occupancy' => $total > 0 ? $total : max( 1, $adults ) + max( 0, $children ),
+			'images'        => ospitano_migrate_images( $p->ID ),
+			'details'       => ospitano_migrate_details( $p->ID ),
+			'size_m2'       => (int) ospitano_migrate_meta( $p->ID, 'mphb_size', 0 ) ?: null,
+			'url'           => array( ospitano_migrate_lang() => get_permalink( $p ) ),
 			'rooms'         => array(),
 		);
 	}
@@ -174,7 +300,7 @@ function ospitano_migrate_build( &$warnings = array() ) {
 			'room_type_id' => (string) $type,
 			'name'         => ospitano_migrate_text( $p->post_title ),
 			'prices'       => array_reverse( $prices ),
-		);
+		) + ospitano_migrate_deposit();
 	}
 
 	foreach ( ospitano_migrate_posts( 'mphb_room_service' ) as $p ) {
@@ -264,6 +390,20 @@ function ospitano_migrate_build( &$warnings = array() ) {
 			'rooms'      => $rooms,
 		);
 	}
+
+	$out['offers']   = ospitano_migrate_coupons( $warnings );
+	$out['settings'] = array_filter(
+		array(
+			'pay_at_hotel'   => ospitano_migrate_option_bool( 'mphb_payment_gateway_cash_enable' ),
+			'check_in_time'  => ospitano_migrate_time( get_option( 'mphb_check_in_time' ) ),
+			'check_out_time' => ospitano_migrate_time( get_option( 'mphb_check_out_time' ) ),
+		),
+		function ( $v ) {
+			return null !== $v;
+		}
+	);
+	// Names and values of the payment options, so the import can be checked by a person. No secrets.
+	$out['source_options'] = ospitano_migrate_payment_options();
 
 	$out['room_types'] = array_values( $out['room_types'] );
 	$out['warnings']   = array_values( array_unique( $warnings ) );

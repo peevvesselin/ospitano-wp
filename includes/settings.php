@@ -90,6 +90,11 @@ function ospitano_booking_settings_page() {
 			</table>
 			<?php submit_button(); ?>
 		</form>
+		<?php if ( ospitano_migrate_available() ) : ?>
+			<h2><?php esc_html_e( 'Move your existing bookings', 'ospitano-booking' ); ?></h2>
+			<p><?php esc_html_e( 'This site has room types, rates and bookings from another booking plugin. Download them as one file and send it to OSPITANO to import. Nothing on this site is changed.', 'ospitano-booking' ); ?></p>
+			<p><a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ospitano_migrate_export' ), 'ospitano_migrate_export' ) ); ?>"><?php esc_html_e( 'Download export', 'ospitano-booking' ); ?></a></p>
+		<?php endif; ?>
 		<?php if ( $s['hotel'] ) : ?>
 			<h2><?php esc_html_e( 'Preview', 'ospitano-booking' ); ?></h2>
 			<?php echo ospitano_booking_render(); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped inside. ?>

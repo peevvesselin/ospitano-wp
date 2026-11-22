@@ -121,3 +121,4 @@ add_action(
 );
 
 require_once __DIR__ . '/includes/settings.php';
+require_once __DIR__ . '/includes/migrate-export.php';

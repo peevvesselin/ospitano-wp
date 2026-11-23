@@ -34,6 +34,13 @@ add_action(
 		foreach ( $ospa_assistants as $a ) {
 			$submenu['ospa-assistants'][] = array( $a['title'], 'read', $a['slug'], $a['title'] );
 		}
+		// WordPress finds a plugin screen (and checks access to it) through the menu it was
+		// registered under. Keep those parents, unseen, so the screens still open.
+		foreach ( $ospa_assistants as $a ) {
+			if ( '' !== $a['parent'] && false === strpos( $a['page'], '.php' ) ) {
+				$submenu[ $a['parent'] ][] = array( $a['title'], 'read', $a['page'], $a['title'] );
+			}
+		}
 
 		add_menu_page( 'Сайт', 'Сайт', 'edit_pages', 'edit.php?post_type=page', '', 'dashicons-admin-site-alt3', 5 );
 		$submenu['edit.php?post_type=page'] = array(
@@ -53,26 +60,27 @@ add_action(
  * The hotel's assistants as they are registered on this site (guest assistant, Milcho),
  * without their technical pages (keys, models, costs, logs).
  *
- * @return array<int,array{slug:string,page:string,title:string}>
+ * @return array<int,array{slug:string,page:string,title:string,parent:string}>
  */
 function ospa_find_assistants( $old_menu, $old_sub ) {
 	$skip = '/(настрой|setting|ключ|api|модел|model|разход|cost|token|тест|test|debug|диагност|license|лиценз)/iu';
 	$out  = array();
-	$add  = function ( $page, $title ) use ( &$out, $skip ) {
+	$add  = function ( $page, $title, $parent = '' ) use ( &$out, $skip ) {
 		$title = trim( wp_strip_all_tags( preg_replace( '#<span.*$#s', '', $title ) ) );
 		if ( '' === $page || '' === $title || preg_match( $skip, $title ) || isset( $out[ $page ] ) ) {
 			return;
 		}
 		$out[ $page ] = array(
-			'slug'  => false === strpos( $page, '.php' ) ? 'admin.php?page=' . $page : $page,
-			'page'  => $page,
-			'title' => $title,
+			'slug'   => false === strpos( $page, '.php' ) ? 'admin.php?page=' . $page : $page,
+			'page'   => $page,
+			'title'  => $title,
+			'parent' => $parent === $page ? '' : (string) $parent,
 		);
 	};
 	// Everything under the "OSPITANO AI" family of menus (guest assistant and friends).
 	foreach ( array( 'ospitano-ai', 'ospitano-assistant', 'ospitano-chat', 'ospitano-mila', 'mila' ) as $parent ) {
 		foreach ( (array) ( $old_sub[ $parent ] ?? array() ) as $it ) {
-			$add( $it[2] ?? '', $it[0] ?? '' );
+			$add( $it[2] ?? '', $it[0] ?? '', $parent );
 		}
 	}
 	// Milcho, wherever it hangs.
@@ -81,10 +89,10 @@ function ospa_find_assistants( $old_menu, $old_sub ) {
 			$add( 'ospitano-manager', 'Милчо (управител)' );
 		}
 	}
-	foreach ( $old_sub as $items ) {
+	foreach ( $old_sub as $parent => $items ) {
 		foreach ( (array) $items as $it ) {
 			if ( 'ospitano-manager' === ( $it[2] ?? '' ) ) {
-				$add( 'ospitano-manager', 'Милчо (управител)' );
+				$add( 'ospitano-manager', 'Милчо (управител)', (string) $parent );
 			}
 		}
 	}

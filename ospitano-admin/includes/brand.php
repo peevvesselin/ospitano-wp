@@ -51,7 +51,11 @@ add_action(
 add_filter(
 	'admin_title',
 	function ( $admin_title, $title ) {
+		global $pagenow;
 		$title = trim( wp_strip_all_tags( (string) $title ) );
+		if ( 'index.php' === $pagenow && empty( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$title = 'Начало';
+		}
 		return ( '' !== $title ? $title . ' ‹ ' : '' ) . OSPA::hotel_name();
 	},
 	99,

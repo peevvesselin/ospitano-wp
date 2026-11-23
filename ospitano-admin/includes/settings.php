@@ -30,6 +30,14 @@ add_action(
 		if ( ! in_array( $me, $full, true ) ) {
 			$full[] = $me; // Never lock yourself out.
 		}
+		$want = ! empty( $_POST['clean_url'] );
+		$msg  = '';
+		if ( $want !== ospa_clean_on() ) {
+			$msg = ospa_clean_switch( $want );
+			if ( '' === $msg && $want ) {
+				ospa_copy_cookie(); // Stay logged in on the new address.
+			}
+		}
 		update_option(
 			OSPA::OPT,
 			array(
@@ -39,6 +47,9 @@ add_action(
 				'help_phone' => sanitize_text_field( wp_unslash( $_POST['help_phone'] ?? '' ) ),
 			)
 		);
+		if ( $msg ) {
+			set_transient( 'ospa_msg_' . $me, $msg, 120 );
+		}
 		wp_safe_redirect( admin_url( 'options-general.php?page=ospitano-admin&saved=1' ) );
 		exit;
 	}
@@ -58,12 +69,23 @@ function ospa_settings_page() {
 		<?php if ( ! empty( $_GET['saved'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
 			<div class="notice notice-success"><p>Запазено.</p></div>
 		<?php endif; ?>
+		<?php
+		$msg = get_transient( 'ospa_msg_' . get_current_user_id() );
+		if ( $msg ) :
+			delete_transient( 'ospa_msg_' . get_current_user_id() );
+			?>
+			<div class="notice notice-error"><p><?php echo esc_html( $msg ); ?></p></div>
+		<?php endif; ?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 			<input type="hidden" name="action" value="ospa_save">
 			<?php wp_nonce_field( 'ospa_save' ); ?>
 
 			<h2>Кратко меню за хотела</h2>
 			<p><label><input type="checkbox" name="hotel_mode" value="1" <?php checked( $o['hotel_mode'] ); ?>> Включено. Хората, които не са отметнати по-долу, виждат менюто на хотела: Начало, Резервации, Асистенти, Сайт, Профил и помощ.</label></p>
+
+			<h2>Адрес на панела</h2>
+			<p><label><input type="checkbox" name="clean_url" value="1" <?php checked( ospa_clean_on() ); ?>> Кратък адрес: <code><?php echo esc_html( home_url( '/admin' ) ); ?></code> за панела и <code><?php echo esc_html( home_url( '/admin/login' ) ); ?></code> за вход.</label></p>
+			<p class="description">Старите адреси продължават да работят като резервен вход.</p>
 
 			<h2>Пълен достъп</h2>
 			<p class="description">Тези хора виждат цялото меню и настройките. Всички останали виждат краткото меню.</p>

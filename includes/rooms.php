@@ -79,7 +79,7 @@ add_action(
 			}
 		}
 		// Its other shortcodes (room lists, single parts) are drawn by us on the room page or have no use any more.
-		foreach ( array( 'mphb_room', 'mphb_availability_calendar', 'mphb_booking_form', 'mphb_services', 'mphb_service', 'mphb_rates', 'mphb_booking_confirmation', 'mphb_account', 'mphb_booking_cancellation', 'mphb_search_results_page' ) as $tag ) {
+		foreach ( array( 'mphb_room', 'mphb_availability_calendar', 'mphb_booking_form', 'mphb_services', 'mphb_service', 'mphb_rates', 'mphb_booking_confirmation', 'mphb_account', 'mphb_booking_cancellation', 'mphb_search_results_page', 'mphb_payment_request_checkout' ) as $tag ) {
 			if ( ! shortcode_exists( $tag ) ) {
 				add_shortcode( $tag, '__return_empty_string' );
 			}

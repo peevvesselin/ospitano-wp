@@ -3,7 +3,7 @@
  * Plugin Name:       OSPITANO Booking
  * Plugin URI:        https://ospitano.eu/
  * Description:       Online booking form for hotels on the OSPITANO booking platform. Adds a shortcode and a block.
- * Version:           1.1.0
+ * Version:           1.2.0
  * Requires at least: 6.3
  * Requires PHP:      7.4
  * Author:            OSPITANO
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OSPITANO_BOOKING_VERSION', '1.1.0' );
+define( 'OSPITANO_BOOKING_VERSION', '1.2.0' );
 define( 'OSPITANO_BOOKING_DEFAULT_CORE', 'https://core.ospitano.eu' );
 
 /**
@@ -161,3 +161,4 @@ add_action(
 require_once __DIR__ . '/includes/settings.php';
 require_once __DIR__ . '/includes/migrate-export.php';
 require_once __DIR__ . '/includes/site.php';
+require_once __DIR__ . '/includes/core-link.php';

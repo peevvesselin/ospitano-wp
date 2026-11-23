@@ -139,6 +139,30 @@ function ospitano_booking_settings_page() {
 			</table>
 			<?php submit_button(); ?>
 		</form>
+		<?php if ( $s['hotel'] ) : ?>
+			<h2 id="ospitano-assistants"><?php esc_html_e( 'Assistants', 'ospitano-booking' ); ?></h2>
+			<?php
+			$link_state = isset( $_GET['ospitano_link'] ) ? sanitize_key( wp_unslash( $_GET['ospitano_link'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$messages   = array(
+				'ok'     => array( 'success', __( 'Connected. The assistants now work with the bookings on OSPITANO.', 'ospitano-booking' ) ),
+				'noping' => array( 'warning', __( 'Connected, but OSPITANO could not be told where to send new-booking alerts. Press Connect again later.', 'ospitano-booking' ) ),
+				'failed' => array( 'error', __( 'The connection was not completed. Please try again.', 'ospitano-booking' ) ),
+				'hotel'  => array( 'error', __( 'That OSPITANO account is for another hotel code.', 'ospitano-booking' ) ),
+			);
+			if ( isset( $messages[ $link_state ] ) ) {
+				printf( '<div class="notice notice-%s"><p>%s</p></div>', esc_attr( $messages[ $link_state ][0] ), esc_html( $messages[ $link_state ][1] ) );
+			}
+			$link = ospitano_core_link();
+			?>
+			<p><?php esc_html_e( 'Lets the assistants on this site (the manager\'s assistant and the guest chat) see and manage the bookings on OSPITANO, and sends an alert for every new booking.', 'ospitano-booking' ); ?></p>
+			<?php if ( ospitano_core_connected() ) : ?>
+				<p><strong><?php esc_html_e( 'Connected', 'ospitano-booking' ); ?></strong> — <?php echo esc_html( wp_date( 'd.m.Y H:i', (int) ( $link['connected_at'] ?? 0 ) ) ); ?></p>
+				<p><a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ospitano_connect' ), 'ospitano_connect' ) ); ?>"><?php esc_html_e( 'Connect again', 'ospitano-booking' ); ?></a>
+				<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ospitano_disconnect' ), 'ospitano_disconnect' ) ); ?>"><?php esc_html_e( 'Disconnect', 'ospitano-booking' ); ?></a></p>
+			<?php else : ?>
+				<p><a class="button button-primary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ospitano_connect' ), 'ospitano_connect' ) ); ?>"><?php esc_html_e( 'Connect the assistants', 'ospitano-booking' ); ?></a></p>
+			<?php endif; ?>
+		<?php endif; ?>
 		<?php if ( ospitano_migrate_available() ) : ?>
 			<h2><?php esc_html_e( 'Move your existing bookings', 'ospitano-booking' ); ?></h2>
 			<p><?php esc_html_e( 'This site has room types, rates and bookings from another booking plugin. Download them as one file and send it to OSPITANO to import. Nothing on this site is changed.', 'ospitano-booking' ); ?></p>

@@ -90,3 +90,33 @@ msgstr "На сайта има типове стаи, цени и резерва
 msgid "— same as the old booking plugin —"
 msgstr "— като старата система —"
 
+
+msgid "Assistants"
+msgstr "Асистенти"
+
+msgid "Lets the assistants on this site (the manager's assistant and the guest chat) see and manage the bookings on OSPITANO, and sends an alert for every new booking."
+msgstr "Позволява на асистентите на сайта (Милчо за управителя и Мила за гостите) да виждат и управляват резервациите в OSPITANO и изпраща известие за всяка нова резервация."
+
+msgid "Connected"
+msgstr "Свързани"
+
+msgid "Connect the assistants"
+msgstr "Свържи асистентите"
+
+msgid "Connect again"
+msgstr "Свържи отново"
+
+msgid "Disconnect"
+msgstr "Прекъсни връзката"
+
+msgid "Connected. The assistants now work with the bookings on OSPITANO."
+msgstr "Свързани. Асистентите вече работят с резервациите в OSPITANO."
+
+msgid "Connected, but OSPITANO could not be told where to send new-booking alerts. Press Connect again later."
+msgstr "Свързани, но OSPITANO не успя да запише къде да праща известията за нови резервации. Натиснете „Свържи отново“ по-късно."
+
+msgid "That OSPITANO account is for another hotel code."
+msgstr "Този профил в OSPITANO е за друг код на хотел."
+
+msgid "The connection was not completed. Please try again."
+msgstr "Връзката не беше завършена. Опитайте отново."

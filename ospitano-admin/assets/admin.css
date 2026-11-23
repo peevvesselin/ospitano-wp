@@ -174,3 +174,28 @@ input[type=radio]:checked::before{background-color:var(--ospa-brassd)}
 .ospa-stat-n{display:block;font-family:var(--ospa-serif);font-size:38px;font-weight:600;line-height:1;color:var(--ospa-ink)}
 .ospa-stat-l{display:block;margin-top:6px;font-size:12px;color:var(--ospa-taupe)}
 @media screen and (max-width:782px){.ospa-stats{grid-template-columns:1fr 1fr}}
+
+/* ---------- Embedded booking screens ---------- */
+.ospa-embed-wrap{max-width:none;margin:10px 20px 0 2px}
+.ospa-tabs{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 12px;border-bottom:1px solid var(--ospa-sand)}
+.ospa-tab{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;margin-bottom:-1px;border:1px solid transparent;border-radius:4px 4px 0 0;color:var(--ospa-taupe);text-decoration:none;font-weight:500;font-size:13px}
+.ospa-tab .dashicons{font-size:16px;width:16px;height:16px;color:var(--ospa-stone)}
+.ospa-tab:hover,.ospa-tab:focus{color:var(--ospa-ink)}
+.ospa-tab.is-active{background:#fff;border-color:var(--ospa-sand);border-bottom-color:#fff;color:var(--ospa-ink)}
+.ospa-tab.is-active .dashicons{color:var(--ospa-brass)}
+.ospa-embed{position:relative;background:#fff;border:1px solid var(--ospa-sand);border-radius:4px;overflow:hidden;height:calc(100vh - 32px - 110px);min-height:520px}
+.ospa-embed iframe{display:block;width:100%;height:100%;border:0;opacity:0;transition:opacity .2s}
+.ospa-embed.is-loaded iframe{opacity:1}
+.ospa-embed-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ospa-taupe);font-size:13px;letter-spacing:.08em}
+.ospa-embed.is-loaded .ospa-embed-loading{display:none}
+.toplevel_page_ospa-bookings #wpfooter{display:none}
+@media screen and (max-width:782px){.ospa-embed-wrap{margin:10px 10px 0 0}.ospa-embed{height:calc(100vh - 46px - 120px)}.ospa-tab{padding:8px 10px}}
+
+/* ---------- Milcho card ---------- */
+.ospa-milcho{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:16px;padding:20px 24px;background:#fff;border:1px solid var(--ospa-sand);border-left:3px solid var(--ospa-brass);border-radius:4px}
+.ospa-milcho h3{margin:2px 0 4px;font-family:var(--ospa-serif);font-size:24px;font-weight:600;color:var(--ospa-ink)}
+.ospa-milcho p{margin:0;color:var(--ospa-taupe)}
+.ospa-milcho .ospa-eyebrow{color:var(--ospa-brassd)}
+.ospa-milcho-actions{display:flex;gap:8px;flex-shrink:0}
+.ospa-milcho-actions form{margin:0}
+@media screen and (max-width:782px){.ospa-milcho{flex-direction:column;align-items:flex-start}}

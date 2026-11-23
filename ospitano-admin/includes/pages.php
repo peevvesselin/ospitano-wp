@@ -57,20 +57,91 @@ function ospa_section_head( $eyebrow, $title, $sub ) {
 	<?php
 }
 
-function ospa_page_bookings() {
-	$milcho = ospa_assistant_url( 'ospitano-manager' );
-	echo '<div class="wrap ospa-section">';
-	ospa_section_head( 'Резервации', 'Управление на хотела', 'Календарът, цените, наличностите и офертите се управляват в системата за резервации на OSPITANO. Всяка промяна там важи веднага за сайта.' );
-	ospa_cards(
+/** Booking screens, in the order of the tabs. Path is relative to the hotel's panel on the platform. */
+function ospa_booking_views() {
+	return array(
+		'calendar' => array( 'Календар', 'calendar', 'dashicons-calendar-alt', 'Кои стаи са заети и кои свободни по дни' ),
+		'bookings' => array( 'Резервации', 'bookings', 'dashicons-clipboard', 'Нови, потвърдени и отменени резервации' ),
+		'rates'    => array( 'Цени и наличности', 'rates', 'dashicons-tag', 'Цени по дати, минимален престой, затворени дни' ),
+		'rooms'    => array( 'Стаи', 'room-types', 'dashicons-admin-multisite', 'Типове стаи, снимки, описания и капацитет' ),
+		'services' => array( 'Услуги и екстри', 'services', 'dashicons-star-filled', 'Закуска, паркинг, СПА и други добавки' ),
+		'coupons'  => array( 'Оферти и промокодове', 'coupons', 'dashicons-megaphone', 'Отстъпки и кодове за директни резервации' ),
+	);
+}
+
+/**
+ * One-time sign-in link to a booking screen on the platform, for the current WordPress user.
+ * The platform answers only to this site's own connection key, so the link cannot be made elsewhere.
+ *
+ * @return string URL, or '' when the site is not connected or the platform does not offer it yet.
+ */
+function ospa_sso_url( $path ) {
+	if ( ! function_exists( 'ospitano_core_connected' ) || ! function_exists( 'ospitano_core_api' ) || ! ospitano_core_connected() ) {
+		return '';
+	}
+	$user = wp_get_current_user();
+	$res  = ospitano_core_api(
+		'POST',
+		'sso-links',
 		array(
-			array( 'title' => 'Календар на заетостта', 'url' => ospa_platform_url( 'calendar' ), 'icon' => 'dashicons-calendar-alt', 'descr' => 'Кои стаи са заети и кои свободни по дни', 'ext' => true ),
-			array( 'title' => 'Резервации', 'url' => ospa_platform_url( 'bookings' ), 'icon' => 'dashicons-clipboard', 'descr' => 'Нови, потвърдени и отменени резервации', 'ext' => true ),
-			array( 'title' => 'Цени и наличности', 'url' => ospa_platform_url( 'rates' ), 'icon' => 'dashicons-tag', 'descr' => 'Цени по дати, минимален престой, затворени дни', 'ext' => true ),
-			array( 'title' => 'Стаи', 'url' => ospa_platform_url( 'room-types' ), 'icon' => 'dashicons-admin-multisite', 'descr' => 'Типове стаи, снимки, описания и капацитет', 'ext' => true ),
-			array( 'title' => 'Услуги и екстри', 'url' => ospa_platform_url( 'services' ), 'icon' => 'dashicons-star-filled', 'descr' => 'Закуска, паркинг, СПА и други добавки', 'ext' => true ),
-			array( 'title' => 'Оферти и промокодове', 'url' => ospa_platform_url( 'coupons' ), 'icon' => 'dashicons-megaphone', 'descr' => 'Отстъпки и кодове за директни резервации', 'ext' => true ),
+			'path'    => $path,
+			'embed'   => true,
+			'wp_user' => (int) $user->ID,
+			'name'    => $user->display_name,
+			'email'   => $user->user_email,
+			'site'    => home_url( '/' ),
 		)
 	);
+	if ( is_wp_error( $res ) || empty( $res['url'] ) ) {
+		return '';
+	}
+	$url = esc_url_raw( (string) $res['url'] );
+	// Only ever frame the platform we are connected to.
+	$core = wp_parse_url( ospitano_core_base(), PHP_URL_HOST );
+	return ( $core && wp_parse_url( $url, PHP_URL_HOST ) === $core ) ? $url : '';
+}
+
+function ospa_page_bookings() {
+	$views = ospa_booking_views();
+	$view  = isset( $_GET['view'] ) ? sanitize_key( $_GET['view'] ) : 'calendar'; // phpcs:ignore WordPress.Security.NonceVerification
+	$view  = isset( $views[ $view ] ) ? $view : 'calendar';
+	$src   = ospa_sso_url( $views[ $view ][1] );
+
+	if ( '' === $src ) {
+		ospa_page_bookings_links();
+		return;
+	}
+	echo '<div class="wrap ospa-section ospa-embed-wrap">';
+	echo '<nav class="ospa-tabs" aria-label="Резервации">';
+	foreach ( $views as $key => $v ) {
+		printf(
+			'<a class="ospa-tab%s" href="%s"%s><span class="dashicons %s" aria-hidden="true"></span>%s</a>',
+			$key === $view ? ' is-active' : '',
+			esc_url( admin_url( 'admin.php?page=ospa-bookings&view=' . $key ) ),
+			$key === $view ? ' aria-current="page"' : '',
+			esc_attr( $v[2] ),
+			esc_html( $v[0] )
+		);
+	}
+	echo '</nav>';
+	printf(
+		'<div class="ospa-embed"><div class="ospa-embed-loading">Зареждане…</div><iframe src="%s" title="%s" allow="clipboard-write" referrerpolicy="strict-origin" onload="this.parentNode.classList.add(\'is-loaded\')"></iframe></div>',
+		esc_url( $src ),
+		esc_attr( $views[ $view ][0] )
+	);
+	echo '</div>';
+}
+
+/** Before the site is connected (or if the platform is unreachable): plain links that open the platform. */
+function ospa_page_bookings_links() {
+	$milcho = ospa_assistant_url( 'ospitano-manager' );
+	$cards  = array();
+	foreach ( ospa_booking_views() as $v ) {
+		$cards[] = array( 'title' => $v[0], 'url' => ospa_platform_url( $v[1] ), 'icon' => $v[2], 'descr' => $v[3], 'ext' => true );
+	}
+	echo '<div class="wrap ospa-section">';
+	ospa_section_head( 'Резервации', 'Управление на хотела', 'Календарът, цените, наличностите и офертите се управляват в системата за резервации на OSPITANO. Всяка промяна там важи веднага за сайта.' );
+	ospa_cards( $cards );
 	if ( $milcho ) {
 		echo '<div class="ospa-tip"><span class="dashicons dashicons-lightbulb" aria-hidden="true"></span><div><strong>По-бързо през Милчо.</strong> Днешните пристигания, разпределение на стаите и справки са в <a href="' . esc_url( $milcho ) . '">Милчо</a>.</div></div>';
 	}

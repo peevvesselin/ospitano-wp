@@ -84,6 +84,8 @@ function ospa_dashboard_home() {
 			<?php endif; ?>
 		</div>
 
+		<?php ospa_milcho_card(); ?>
+
 		<?php if ( $nums && $nums['rooms'] ) : ?>
 			<div class="ospa-stats">
 				<div class="ospa-stat"><span class="ospa-stat-n"><?php echo (int) $nums['arrivals']; ?></span><span class="ospa-stat-l">пристигания днес</span></div>

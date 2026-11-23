@@ -83,7 +83,7 @@ function ospitano_core_public( $path, $query = array() ) {
 		return new WP_Error( 'no_hotel', 'No hotel code.' );
 	}
 	$url = ospitano_core_base() . '/api/v1/public/' . rawurlencode( $hotel ) . '/' . ltrim( $path, '/' );
-	return ospitano_core_request( 'GET', add_query_arg( array_map( 'rawurlencode', $query ), $url ) );
+	return ospitano_core_request( 'GET', add_query_arg( urlencode_deep( $query ), $url ) );
 }
 
 /* ---------- connecting ---------- */
@@ -217,7 +217,8 @@ add_filter(
 		$in       = sanitize_text_field( $input['check_in'] ?? '' );
 		$out      = sanitize_text_field( $input['check_out'] ?? '' );
 		$adults   = max( 1, (int) ( $input['adults'] ?? 2 ) );
-		$children = max( 0, (int) ( $input['children'] ?? 0 ) );
+		$ages     = array_values( array_map( 'intval', array_slice( (array) ( $input['children_ages'] ?? array() ), 0, 20 ) ) );
+		$children = $ages ? count( $ages ) : max( 0, (int) ( $input['children'] ?? 0 ) );
 		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $in ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $out ) ) {
 			return array( 'error' => 'Невалидни дати. Използвай формат YYYY-MM-DD.' );
 		}
@@ -233,7 +234,7 @@ add_filter(
 				'adults'    => $adults,
 				'children'  => $children,
 				'lang'      => $lang,
-			)
+			) + ( $ages ? array( 'children_ages' => $ages ) : array() )
 		);
 		if ( is_wp_error( $data ) ) {
 			return array( 'error' => 'Системата за резервации не отговори. Предложи на госта да провери на сайта или да се свърже с рецепцията.' );
@@ -270,6 +271,8 @@ add_filter(
 				'total_price_eur'        => round( $total, 2 ),
 				'price_after_offer_eur'  => $pct ? round( $total * ( 100 - $pct ) / 100, 2 ) : null,
 				'rate'                   => $best['name'] ?? '',
+				'room_type_id'           => (int) ( $rt['room_type_id'] ?? 0 ),
+				'rate_plan_id'           => (int) ( $best['rate_plan_id'] ?? 0 ),
 				'page'                   => $rt['url'] ?? null,
 			);
 		}
@@ -288,9 +291,145 @@ add_filter(
 			) : null,
 			'check_out_rules' => $data['checkout_note'] ?? null,
 			'pay_at_hotel'    => ! empty( $data['pay_at_hotel'] ),
+			'services'        => array_map(
+				fn( $sv ) => array(
+					'code'      => $sv['code'] ?? '',
+					'name'      => $sv['name'] ?? '',
+					'price_eur' => round( ( $sv['price_cents'] ?? 0 ) / 100, 2 ),
+					'pricing'   => $sv['pricing'] ?? '',
+				),
+				(array) ( $data['services'] ?? array() )
+			),
 			'note'         => 'total_price_eur е общо за престоя с ДДС и туристически данък, без допълнителни услуги. price_after_offer_eur е цената след офертата, ако има такава за тези дати: кажи я точно и че се приспада автоматично при резервация през сайта. Ако offer е null, не споменавай отстъпка. Ако списъкът е празен, няма свободни стаи. check_out_rules са правилата за късно напускане, кажи ги ако гостът пита. booking_link е обикновен линк към свободните стаи. Преведи имената на стаите на езика на госта и отговори на неговия език.',
 		);
 	},
 	10,
 	3
+);
+
+/* ---------- guest chat: the guest books in the chat, start to finish ---------- */
+
+/** The chat gets a "book_room" tool once bookings live on the platform. */
+add_filter(
+	'osp_ai_tools',
+	function ( $tools ) {
+		if ( ! ospitano_core_is_live() ) {
+			return $tools;
+		}
+		$tools[] = array(
+			'name'         => 'book_room',
+			'description'  => 'Прави истинска резервация в системата на хотела. Извиквай САМО след като си показал на госта обобщение (стая, дати, брой гости и възраст на децата, обща цена, име, имейл, телефон, начин на плащане) и той изрично е потвърдил с „да“ или подобно. Вземи room_type_id и rate_plan_id от check_availability за същите дати. Ако резултатът има payment_url, дай го на госта като линк за плащане и кажи до кога трябва да плати, иначе резервацията се отменя. Ако има error, кажи го на госта с прости думи и предложи друго.',
+			'input_schema' => array(
+				'type'       => 'object',
+				'properties' => array(
+					'check_in'      => array( 'type' => 'string', 'description' => 'YYYY-MM-DD' ),
+					'check_out'     => array( 'type' => 'string', 'description' => 'YYYY-MM-DD' ),
+					'adults'        => array( 'type' => 'integer' ),
+					'children_ages' => array( 'type' => 'array', 'items' => array( 'type' => 'integer' ), 'description' => 'Възрастта на всяко дете; празно, ако няма деца' ),
+					'room_type_id'  => array( 'type' => 'integer' ),
+					'rate_plan_id'  => array( 'type' => 'integer' ),
+					'first_name'    => array( 'type' => 'string' ),
+					'last_name'     => array( 'type' => 'string' ),
+					'email'         => array( 'type' => 'string' ),
+					'phone'         => array( 'type' => 'string' ),
+					'pay_at_hotel'  => array( 'type' => 'boolean', 'description' => 'true само ако гостът избере плащане в хотела и check_availability е върнал pay_at_hotel: true' ),
+					'extras'        => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'description' => 'Кодове на допълнителни услуги от check_availability (services), по желание' ),
+					'notes'         => array( 'type' => 'string', 'description' => 'Желания на госта към хотела, по желание' ),
+				),
+				'required'   => array( 'check_in', 'check_out', 'adults', 'rate_plan_id', 'first_name', 'last_name', 'email' ),
+			),
+		);
+		return $tools;
+	}
+);
+
+add_filter(
+	'osp_ai_run_tool',
+	function ( $result, $name, $input, $ctx = array() ) {
+		if ( null !== $result || 'book_room' !== $name || ! ospitano_core_is_live() ) {
+			return $result;
+		}
+		if ( ! empty( $ctx['test'] ) ) {
+			return array( 'ok' => true, 'reference' => 'TEST-1', 'note' => 'Тестов режим: резервацията не е направена.' );
+		}
+		$in    = sanitize_text_field( $input['check_in'] ?? '' );
+		$out   = sanitize_text_field( $input['check_out'] ?? '' );
+		$email = sanitize_email( $input['email'] ?? '' );
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $in ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $out ) ) {
+			return array( 'error' => 'Невалидни дати. Използвай формат YYYY-MM-DD.' );
+		}
+		if ( ! is_email( $email ) ) {
+			return array( 'error' => 'Имейлът не изглежда верен. Помоли госта да го напише отново.' );
+		}
+		$ages = array_values( array_map( 'intval', array_slice( (array) ( $input['children_ages'] ?? array() ), 0, 20 ) ) );
+		$stay = array(
+			'rate_plan_id'  => (int) ( $input['rate_plan_id'] ?? 0 ),
+			'arrival'       => $in,
+			'departure'     => $out,
+			'adults'        => max( 1, (int) ( $input['adults'] ?? 2 ) ),
+			'children'      => count( $ages ),
+			'children_ages' => $ages,
+		);
+		$hotel = rawurlencode( ospitano_booking_settings()['hotel'] );
+		$base  = ospitano_core_base() . '/api/v1/public/' . $hotel;
+		$hold  = ospitano_core_request( 'POST', $base . '/holds', $stay );
+		if ( is_wp_error( $hold ) ) {
+			return array( 'error' => 'Стаята вече не може да се запази за тези дати. Провери отново с check_availability и предложи друго.' );
+		}
+		$services = array();
+		$codes    = array_map( 'sanitize_key', (array) ( $input['extras'] ?? array() ) );
+		if ( $codes ) {
+			$lang  = function_exists( 'pll_current_language' ) && pll_current_language( 'slug' ) ? pll_current_language( 'slug' ) : 'bg';
+			$avail = ospitano_core_public( 'availability', array( 'arrival' => $in, 'departure' => $out, 'adults' => $stay['adults'], 'children' => $stay['children'], 'lang' => $lang ) );
+			foreach ( is_wp_error( $avail ) ? array() : (array) ( $avail['services'] ?? array() ) as $sv ) {
+				if ( in_array( sanitize_key( (string) ( $sv['code'] ?? '' ) ), $codes, true ) ) {
+					$services[] = array( 'service_id' => (int) $sv['service_id'], 'quantity' => 1 );
+				}
+			}
+		}
+		$body = array(
+			'hold_token'     => $hold['token'] ?? '',
+			'channel'        => 'chat',
+			'guest'          => array_filter(
+				array(
+					'first_name' => sanitize_text_field( $input['first_name'] ?? '' ),
+					'last_name'  => sanitize_text_field( $input['last_name'] ?? '' ),
+					'email'      => $email,
+					'phone'      => sanitize_text_field( $input['phone'] ?? '' ),
+					'language'   => function_exists( 'pll_current_language' ) && pll_current_language( 'slug' ) ? pll_current_language( 'slug' ) : null,
+				)
+			),
+			'children_ages'  => $ages,
+			'services'       => $services,
+			'guest_notes'    => sanitize_textarea_field( $input['notes'] ?? '' ),
+			'payment_method' => ! empty( $input['pay_at_hotel'] ) ? 'hotel' : 'card',
+		);
+		$b = ospitano_core_request( 'POST', $base . '/bookings', $body );
+		if ( is_wp_error( $b ) ) {
+			$d    = $b->get_error_data();
+			$bad  = is_array( $d ) && ! empty( $d['data']['errors'] ) ? array_keys( (array) $d['data']['errors'] ) : array();
+			$what = array_filter(
+				array(
+					preg_grep( '/email/', $bad ) ? 'имейла' : '',
+					preg_grep( '/phone/', $bad ) ? 'телефона' : '',
+					preg_grep( '/name/', $bad ) ? 'името' : '',
+				)
+			);
+			return array( 'error' => $what ? 'Провери с госта ' . implode( ', ', $what ) . ' и опитай пак.' : 'Резервацията не мина. Предложи на госта да опита на сайта или да се свърже с рецепцията.' );
+		}
+		$bk  = $b['data'] ?? array();
+		$pay = $b['payment'] ?? null;
+		return array(
+			'ok'           => true,
+			'reference'    => $bk['reference'] ?? '',
+			'status'       => $bk['status'] ?? '',
+			'total_eur'    => isset( $bk['total_cents'] ) ? round( $bk['total_cents'] / 100, 2 ) : null,
+			'due_now_eur'  => isset( $bk['due_now_cents'] ) ? round( $bk['due_now_cents'] / 100, 2 ) : null,
+			'payment_url'  => is_array( $pay ) ? ( $pay['url'] ?? null ) : null,
+			'pay_by'       => is_array( $pay ) && ! empty( $pay['pay_by'] ) ? wp_date( 'd.m.Y H:i', strtotime( $pay['pay_by'] ) ) : null,
+			'note'         => 'Кажи номера на резервацията (reference). Ако status е confirmed, резервацията е потвърдена и потвърждение е изпратено на имейла. Ако status е pending_payment, дай payment_url като линк „Плати сега“ и кажи, че резервацията се потвърждава след плащането и трябва да стане до pay_by (местно време), иначе стаята се освобождава. Не измисляй друг линк.',
+		);
+	},
+	10,
+	4
 );

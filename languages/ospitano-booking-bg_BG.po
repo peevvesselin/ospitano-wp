@@ -1,0 +1,92 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: bg_BG\n"
+
+msgid "Book button"
+msgstr "Бутон „Резервирай“"
+
+msgid "Booking pages"
+msgstr "Страници за резервация"
+
+msgid "Button colour"
+msgstr "Цвят на бутона"
+
+msgid "Change only if OSPITANO support asks you to."
+msgstr "Променяйте само ако поддръжката на OSPITANO ви каже."
+
+msgid "Checkout ([ospitano_checkout])"
+msgstr "Плащане ([ospitano_checkout])"
+
+msgid "Connect this site to your hotel on the OSPITANO platform. Then add the \"OSPITANO Booking\" block or the [ospitano_booking] shortcode to any page."
+msgstr "Свържете сайта с хотела си в платформата OSPITANO. След това добавете блока „OSPITANO Booking“ или кода [ospitano_booking] на която и да е страница."
+
+msgid "Download export"
+msgstr "Изтегли файла за пренос"
+
+msgid "Hotel code"
+msgstr "Код на хотела"
+
+msgid "Language"
+msgstr "Език"
+
+msgid "Live: everyone sees the OSPITANO booking"
+msgstr "На живо: всички виждат резервациите на OSPITANO"
+
+msgid "Move your existing bookings"
+msgstr "Пренос на съществуващите резервации"
+
+msgid "Not allowed."
+msgstr "Нямате права."
+
+msgid "OSPITANO Booking"
+msgstr "OSPITANO Booking"
+
+msgid "OSPITANO Booking: set your hotel code in Settings → OSPITANO Booking."
+msgstr "OSPITANO Booking: въведете кода на хотела в Настройки → OSPITANO Booking."
+
+msgid "Off: visitors and you see the old booking"
+msgstr "Изключено: всички виждат старата система за резервации"
+
+msgid "Only administrators see the new booking while the preview is on."
+msgstr "Докато прегледът е включен, новата система виждат само администраторите."
+
+msgid "Platform address"
+msgstr "Адрес на платформата"
+
+msgid "Preview"
+msgstr "Преглед"
+
+msgid "Preview: only administrators, after opening a page with ?ospitano_preview=1"
+msgstr "Преглед: само администратори, след като отворят страница с ?ospitano_preview=1"
+
+msgid "Replace the old booking plugin"
+msgstr "Замяна на старата система за резервации"
+
+msgid "Same as the page (WPML, Polylang or site language)"
+msgstr "Като страницата (WPML, Polylang или езика на сайта)"
+
+msgid "Search results ([ospitano_results])"
+msgstr "Резултати от търсенето ([ospitano_results])"
+
+msgid "Settings"
+msgstr "Настройки"
+
+msgid "Show a floating \"Book\" button on every page. Links to #book and #spa open the booking and SPA forms."
+msgstr "Показва плаващ бутон „Резервирай“ на всяка страница. Връзките към #book и #spa отварят формите за резервация и СПА."
+
+msgid "Shows the OSPITANO search, results and checkout in place of the old plugin's, on the same pages and in the same design. Nothing in the pages is edited, so \"Off\" brings the old booking back at once."
+msgstr "Показва търсенето, резултатите и плащането на OSPITANO вместо тези на старата система, на същите страници и в същия дизайн. Страниците не се променят, затова „Изключено“ връща старата система веднага."
+
+msgid "Terms and conditions"
+msgstr "Общи условия"
+
+msgid "The short code of your hotel, given by OSPITANO (for example: hotel-sunrise)."
+msgstr "Краткият код на хотела, даден от OSPITANO (например: hotel-sunrise)."
+
+msgid "This site has room types, rates and bookings from another booking plugin. Download them as one file and send it to OSPITANO to import. Nothing on this site is changed."
+msgstr "На сайта има типове стаи, цени и резервации от друга система. Изтеглете ги в един файл за пренос в OSPITANO. Нищо на сайта не се променя."
+
+msgid "— same as the old booking plugin —"
+msgstr "— като старата система —"
+

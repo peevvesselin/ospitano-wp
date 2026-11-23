@@ -1,0 +1,7 @@
+/* OSPITANO Admin — block editor chrome (not the content) */
+.edit-post-header,.editor-header,.interface-interface-skeleton__header{font-family:'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.edit-post-fullscreen-mode-close.components-button,.editor-fullscreen-mode-close.components-button,.edit-site-site-hub__view-mode-toggle-container .components-button{background:#1C1B19!important}
+.edit-post-fullscreen-mode-close.components-button svg,.editor-fullscreen-mode-close.components-button svg,.edit-site-layout__view-mode-toggle svg{opacity:0}
+.edit-post-fullscreen-mode-close.components-button:before,.editor-fullscreen-mode-close.components-button:before{content:"";position:absolute;inset:0;background:var(--ospa-mark) no-repeat center/26px auto;box-shadow:none!important;border-radius:0}
+.components-button.is-primary{background:#1C1B19}
+.components-button.is-primary:hover:not(:disabled){background:#8A6A43}

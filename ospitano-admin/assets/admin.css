@@ -1,0 +1,148 @@
+/* OSPITANO Admin — palette and type from the OSPITANO brand book. */
+:root{
+	--ospa-ink:#1C1B19;
+	--ospa-char:#3A3732;
+	--ospa-deep:#262421;
+	--ospa-cream:#FAF7F2;
+	--ospa-sand:#EFE9DF;
+	--ospa-stone:#BDB5A8;
+	--ospa-taupe:#6B655C;
+	--ospa-brass:#A98A5F;
+	--ospa-brassd:#8A6A43;
+	--ospa-sans:'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+	--ospa-serif:'Cormorant Garamond',Georgia,serif;
+	--wp-admin-theme-color:#A98A5F;
+	--wp-admin-theme-color--rgb:169,138,95;
+	--wp-admin-theme-color-darker-10:#8A6A43;
+	--wp-admin-theme-color-darker-10--rgb:138,106,67;
+	--wp-admin-theme-color-darker-20:#6f5536;
+	--wp-admin-theme-color-darker-20--rgb:111,85,54;
+}
+
+/* ---------- Base ---------- */
+html.wp-toolbar,body.wp-admin,#wpwrap,#wpcontent,#wpbody{background:var(--ospa-cream)}
+body.wp-admin{font-family:var(--ospa-sans);color:var(--ospa-ink);font-size:13.5px}
+.wp-admin input,.wp-admin select,.wp-admin textarea,.wp-admin button,.wp-core-ui .button{font-family:var(--ospa-sans)}
+.wrap h1,.wrap h1.wp-heading-inline{font-family:var(--ospa-serif);font-weight:600;font-size:32px;line-height:1.15;color:var(--ospa-ink);letter-spacing:.005em}
+.wrap>h2,.wrap form>h2{font-family:var(--ospa-serif);font-weight:600;font-size:22px;color:var(--ospa-ink)}
+a{color:var(--ospa-brassd)}
+a:hover,a:active,a:focus{color:var(--ospa-ink)}
+.wp-core-ui .button-link{color:var(--ospa-brassd)}
+.description,.form-table td p.description{color:var(--ospa-taupe)}
+
+/* ---------- Left menu ---------- */
+#adminmenuback,#adminmenuwrap,#adminmenu{background:var(--ospa-ink)}
+#adminmenu a{color:rgba(250,247,242,.82)}
+#adminmenu div.wp-menu-name{font-weight:500;letter-spacing:.01em}
+#adminmenu div.wp-menu-image:before{color:var(--ospa-stone)}
+#adminmenu li.menu-top:hover,#adminmenu li.opensub>a.menu-top,#adminmenu li>a.menu-top:focus{background:var(--ospa-char);color:#fff}
+#adminmenu li.menu-top:hover div.wp-menu-image:before,#adminmenu li.opensub>a.menu-top div.wp-menu-image:before{color:var(--ospa-brass)}
+#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu,#adminmenu li.current a.menu-top,#adminmenu .wp-menu-arrow,#adminmenu .wp-menu-arrow div,#adminmenu li.wp-has-current-submenu .wp-submenu .wp-submenu-head,.folded #adminmenu li.current.menu-top{background:var(--ospa-char);color:#fff;box-shadow:inset 3px 0 0 var(--ospa-brass)}
+#adminmenu li.wp-has-current-submenu div.wp-menu-image:before,#adminmenu a.current:hover div.wp-menu-image:before,#adminmenu li.current div.wp-menu-image:before,#adminmenu .current div.wp-menu-image:before{color:var(--ospa-brass)}
+#adminmenu .wp-submenu,#adminmenu .wp-has-current-submenu .wp-submenu,#adminmenu .wp-has-current-submenu.opensub .wp-submenu,.folded #adminmenu .wp-has-current-submenu .wp-submenu,#adminmenu a.wp-has-current-submenu:focus+.wp-submenu{background:var(--ospa-deep)}
+#adminmenu .wp-submenu a{color:rgba(250,247,242,.7)}
+#adminmenu .wp-submenu a:hover,#adminmenu .wp-submenu a:focus{color:var(--ospa-brass)}
+#adminmenu .wp-submenu li.current a,#adminmenu .wp-submenu li.current a:hover{color:#fff;font-weight:600}
+#adminmenu li.wp-has-submenu.wp-not-current-submenu.opensub:hover:after,#adminmenu li.wp-has-submenu.wp-not-current-submenu:focus-within:after{border-right-color:var(--ospa-deep)}
+#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu:after,#adminmenu li.current a.menu-top:after{display:none}
+#adminmenu .awaiting-mod,#adminmenu .update-plugins{background:var(--ospa-brass);color:var(--ospa-ink)}
+#adminmenu div.separator{display:none}
+#collapse-button{color:var(--ospa-stone)}
+#collapse-button:hover,#collapse-button:focus{color:var(--ospa-brass)}
+
+/* Logo above the menu */
+#adminmenuwrap{padding-top:0}
+#adminmenuwrap:before{content:"";display:block;height:72px;margin:0 18px;background:var(--ospa-logo) no-repeat left center/118px auto;border-bottom:1px solid rgba(250,247,242,.08)}
+.folded #adminmenuwrap:before{margin:0 8px;background:var(--ospa-mark) no-repeat center/24px auto}
+@media screen and (max-width:782px){#adminmenuwrap:before{margin:0 16px;background-size:120px auto}}
+
+/* ---------- Top bar ---------- */
+#wpadminbar{background:var(--ospa-ink);font-family:var(--ospa-sans)}
+#wpadminbar .ab-item,#wpadminbar a.ab-item,#wpadminbar>#wp-toolbar span.ab-label,#wpadminbar>#wp-toolbar span.noticon{color:rgba(250,247,242,.85)}
+#wpadminbar .ab-icon:before,#wpadminbar .ab-item:before,#wpadminbar .ab-item:after{color:var(--ospa-stone)}
+#wpadminbar .ab-top-menu>li.hover>.ab-item,#wpadminbar .ab-top-menu>li:hover>.ab-item,#wpadminbar .ab-top-menu>li>.ab-item:focus,#wpadminbar.nojq .quicklinks .ab-top-menu>li>.ab-item:focus{background:var(--ospa-char);color:var(--ospa-brass)}
+#wpadminbar .menupop .ab-sub-wrapper,#wpadminbar .shortlink-input{background:var(--ospa-char)}
+#wpadminbar .quicklinks .menupop ul.ab-sub-secondary,#wpadminbar .quicklinks .menupop ul.ab-sub-secondary .ab-submenu{background:var(--ospa-deep)}
+#wpadminbar .quicklinks .menupop ul li a:hover,#wpadminbar .quicklinks .menupop ul li a:focus,#wpadminbar li:hover .ab-icon:before,#wpadminbar li:hover .ab-item:before,#wpadminbar li a:focus .ab-icon:before,#wpadminbar li .ab-item:focus:before,#wpadminbar li.hover .ab-icon:before,#wpadminbar li.hover .ab-item:before,#wpadminbar li:hover #adminbarsearch:before,#wpadminbar>#wp-toolbar li:hover span.ab-label,#wpadminbar>#wp-toolbar li.hover span.ab-label{color:var(--ospa-brass)}
+#wpadminbar #wp-admin-bar-ospa-brand img.ospa-bar-mark{display:inline-block;width:20px;height:20px;vertical-align:middle;margin-top:-3px}
+#wpadminbar #wp-admin-bar-ospa-brand>.ab-item{padding:0 10px}
+#wpadminbar #wp-admin-bar-ospa-preview>.ab-item{color:var(--ospa-brass)}
+#wpadminbar #wp-admin-bar-ospa-preview.ospa-preview-on>.ab-item{background:var(--ospa-brass);color:var(--ospa-ink)}
+@media screen and (max-width:782px){#wpadminbar #wp-admin-bar-ospa-brand{display:block}#wpadminbar #wp-admin-bar-ospa-brand>.ab-item{padding:0 12px}#wpadminbar #wp-admin-bar-ospa-brand img.ospa-bar-mark{width:26px;height:26px;margin-top:10px}}
+
+/* ---------- Buttons and fields ---------- */
+.wp-core-ui .button-primary{background:var(--ospa-ink);border-color:var(--ospa-ink);color:var(--ospa-cream);border-radius:2px;font-weight:500;letter-spacing:.02em;box-shadow:none;text-shadow:none}
+.wp-core-ui .button-primary:hover,.wp-core-ui .button-primary:focus{background:var(--ospa-brassd);border-color:var(--ospa-brassd);color:#fff}
+.wp-core-ui .button-primary:focus{box-shadow:0 0 0 1px #fff,0 0 0 3px var(--ospa-brass)}
+.wp-core-ui .button-primary.disabled,.wp-core-ui .button-primary:disabled{background:var(--ospa-stone)!important;border-color:var(--ospa-stone)!important;color:#fff!important}
+.wp-core-ui .button,.wp-core-ui .button-secondary{color:var(--ospa-ink);border-color:var(--ospa-stone);background:#fff;border-radius:2px}
+.wp-core-ui .button:hover,.wp-core-ui .button-secondary:hover{background:var(--ospa-sand);border-color:var(--ospa-brass);color:var(--ospa-ink)}
+.wp-core-ui .button:focus,.wp-core-ui .button-secondary:focus{border-color:var(--ospa-brass);box-shadow:0 0 0 1px var(--ospa-brass);color:var(--ospa-ink)}
+.wrap .page-title-action,.wrap .add-new-h2{color:var(--ospa-ink);border-color:var(--ospa-brass);background:transparent;border-radius:2px}
+.wrap .page-title-action:hover,.wrap .add-new-h2:hover{background:var(--ospa-brass);border-color:var(--ospa-brass);color:#fff}
+input[type=text],input[type=search],input[type=email],input[type=url],input[type=password],input[type=number],input[type=tel],input[type=date],input[type=time],select,textarea{border-color:var(--ospa-stone);border-radius:2px}
+input[type=text]:focus,input[type=search]:focus,input[type=email]:focus,input[type=url]:focus,input[type=password]:focus,input[type=number]:focus,input[type=tel]:focus,input[type=date]:focus,input[type=time]:focus,select:focus,textarea:focus,input[type=checkbox]:focus,input[type=radio]:focus{border-color:var(--ospa-brass);box-shadow:0 0 0 1px var(--ospa-brass)}
+input[type=checkbox]:checked::before{content:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2020%2020%27%3E%3Cpath%20d%3D%27M14.83%204.89l1.34.94-5.81%208.38H9.02L5.78%209.67l1.34-1.25%202.57%202.4z%27%20fill%3D%27%238A6A43%27%2F%3E%3C%2Fsvg%3E")}
+input[type=radio]:checked::before{background-color:var(--ospa-brassd)}
+.wp-core-ui select:hover{color:var(--ospa-brassd)}
+
+/* ---------- Boxes, tables, notices ---------- */
+.postbox,.stuffbox,.card,.widefat,.wp-list-table,.tablenav .tablenav-pages a,.media-frame,.attachments-browser .media-toolbar{border-color:var(--ospa-sand)}
+.postbox,.card{border-radius:4px;box-shadow:0 1px 2px rgba(28,27,25,.04)}
+.postbox .postbox-header{border-bottom-color:var(--ospa-sand)}
+.postbox .hndle,.postbox h2.hndle{font-family:var(--ospa-sans);font-weight:600;font-size:13px;letter-spacing:.03em}
+.widefat thead td,.widefat thead th,.widefat tfoot td,.widefat tfoot th{border-color:var(--ospa-sand);background:#fff;font-weight:600;color:var(--ospa-char)}
+.striped>tbody>:nth-child(odd),ul.striped>:nth-child(odd),.alternate{background:#fcfaf6}
+.wp-list-table tr:hover{background:#f6f1e8}
+.subsubsub a.current{color:var(--ospa-ink)}
+.subsubsub a{color:var(--ospa-brassd)}
+.tablenav .tablenav-pages a,.tablenav-pages-navspan{border-color:var(--ospa-stone);color:var(--ospa-ink);border-radius:2px}
+.notice,div.updated,div.error{border-left-color:var(--ospa-brass);border-radius:2px;box-shadow:0 1px 2px rgba(28,27,25,.05)}
+.notice-success,div.updated{border-left-color:#5E7D5A}
+.notice-error,div.error{border-left-color:#C0392B}
+.notice-warning{border-left-color:#C8963E}
+.nav-tab{border-color:var(--ospa-stone);background:var(--ospa-sand);color:var(--ospa-taupe);font-family:var(--ospa-sans)}
+.nav-tab-active,.nav-tab-active:hover,.nav-tab-active:focus{background:var(--ospa-cream);border-bottom-color:var(--ospa-cream);color:var(--ospa-ink)}
+.nav-tab-wrapper,.wrap h2.nav-tab-wrapper{border-bottom-color:var(--ospa-stone)}
+#screen-meta-links .show-settings{border-color:var(--ospa-sand);color:var(--ospa-taupe)}
+.wp-pointer-content h3{background:var(--ospa-ink);border-color:var(--ospa-ink)}
+.wp-pointer-content h3:before{color:var(--ospa-brass)}
+.media-modal .button-primary{background:var(--ospa-ink)}
+.attachment.details .check,.wp-core-ui .attachment.selected .check:focus,.media-frame.mode-grid .attachment.selected .check{background:var(--ospa-brass);box-shadow:0 0 0 1px #fff,0 0 0 2px var(--ospa-brass)}
+.wp-core-ui .attachment.details{box-shadow:inset 0 0 0 3px #fff,inset 0 0 0 7px var(--ospa-brass)}
+.wp-responsive-open #wpbody{right:-16em}
+
+/* ---------- Footer ---------- */
+#wpfooter{color:var(--ospa-taupe);border-top:1px solid var(--ospa-sand)}
+#wpfooter .ospa-foot{font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+#footer-upgrade{display:none}
+
+/* ---------- Start page ---------- */
+.index-php .wrap>h1{display:none}
+.index-php #dashboard-widgets-wrap{margin-top:12px}
+.index-php #dashboard-widgets .postbox-container{width:100%!important}
+.index-php #dashboard-widgets #postbox-container-2,.index-php #dashboard-widgets #postbox-container-3,.index-php #dashboard-widgets #postbox-container-4{display:none}
+.index-php .empty-container{display:none!important}
+#ospa_home{border:0;background:transparent;box-shadow:none}
+#ospa_home .postbox-header{display:none}
+#ospa_home .inside{padding:0;margin:0}
+.ospa-home-head{padding:34px 36px 30px;background:var(--ospa-ink);color:var(--ospa-cream);border-radius:4px;position:relative;overflow:hidden}
+.ospa-home-head:after{content:"";position:absolute;right:-30px;top:50%;width:220px;height:220px;transform:translateY(-50%);background:var(--ospa-mark) no-repeat center/contain;opacity:.08}
+.ospa-eyebrow{margin:0 0 6px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ospa-brass)}
+.ospa-home .ospa-hello{margin:0;padding:0;font-family:var(--ospa-serif);font-weight:500;font-size:40px;line-height:1.1;color:var(--ospa-cream)}
+.ospa-sub{margin:8px 0 0;font-size:14px;color:rgba(250,247,242,.7)}
+.ospa-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
+.ospa-card{display:flex;flex-direction:column;gap:6px;padding:20px 20px 18px;background:#fff;border:1px solid var(--ospa-sand);border-radius:4px;text-decoration:none;color:var(--ospa-ink);transition:border-color .15s,transform .15s,box-shadow .15s}
+.ospa-card:hover,.ospa-card:focus{border-color:var(--ospa-brass);color:var(--ospa-ink);transform:translateY(-1px);box-shadow:0 6px 18px rgba(28,27,25,.06)}
+.ospa-card .dashicons{width:26px;height:26px;font-size:26px;color:var(--ospa-brass);margin-bottom:6px}
+.ospa-card-title{font-weight:600;font-size:14.5px}
+.ospa-card-descr{font-size:12.5px;color:var(--ospa-taupe);line-height:1.45}
+.ospa-card-site{background:transparent;border-style:dashed;border-color:var(--ospa-stone)}
+@media screen and (max-width:782px){.ospa-home-head{padding:26px 22px}.ospa-home .ospa-hello{font-size:32px}.ospa-cards{grid-template-columns:1fr 1fr;gap:10px}}
+
+/* ---------- Hotel view ---------- */
+.ospa-hotel #contextual-help-link-wrap,.ospa-hotel.index-php #screen-meta-links{display:none}
+.ospa-preview #wpbody-content:before{content:"Виждате панела така, както го вижда хотелът.";display:block;margin:12px 20px 0 2px;padding:8px 14px;background:var(--ospa-sand);border-left:3px solid var(--ospa-brass);font-size:12.5px;color:var(--ospa-char)}
+
+/* ---------- Settings page ---------- */
+.ospa-checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px 18px;max-width:900px;padding:14px 18px;background:#fff;border:1px solid var(--ospa-sand);border-radius:4px}

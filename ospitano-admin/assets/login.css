@@ -1,0 +1,28 @@
+/* OSPITANO Admin — login screen */
+body.login{background:#FAF7F2;font-family:'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1C1B19;display:flex;flex-direction:column;min-height:100vh}
+body.login:before{content:"";position:fixed;inset:0 auto 0 0;width:6px;background:#A98A5F}
+#login{width:360px;padding:9vh 0 0;margin:0 auto;flex:1}
+#login h1 a{background-size:contain;background-position:center;width:220px;height:30px;margin:0 auto 34px}
+.login .ospa-welcome{text-align:center;margin:0 0 22px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#6B655C}
+.login .ospa-hotel{display:block;margin-bottom:6px;font-family:'Cormorant Garamond',Georgia,serif;font-size:30px;font-weight:600;letter-spacing:0;text-transform:none;color:#1C1B19;line-height:1.15}
+.login form{background:#fff;border:1px solid #EFE9DF;border-radius:4px;box-shadow:0 10px 30px rgba(28,27,25,.06);padding:28px 28px 30px;margin-top:0}
+.login label{font-size:12px;font-weight:500;letter-spacing:.04em;color:#3A3732}
+.login form .input,.login input[type=text],.login input[type=password],.login input[type=email]{border:1px solid #BDB5A8;border-radius:2px;background:#FAF7F2;font-size:16px;padding:6px 10px;box-shadow:none;font-family:inherit}
+.login form .input:focus,.login input[type=text]:focus,.login input[type=password]:focus{border-color:#A98A5F;box-shadow:0 0 0 1px #A98A5F;background:#fff}
+.login .button.wp-hide-pw{color:#6B655C}
+.login .button.wp-hide-pw:focus{border-color:#A98A5F;box-shadow:0 0 0 1px #A98A5F}
+.login .button.wp-hide-pw .dashicons{color:#6B655C}
+.login input[type=checkbox]{border-color:#BDB5A8}
+.login input[type=checkbox]:focus{border-color:#A98A5F;box-shadow:0 0 0 1px #A98A5F}
+.login input[type=checkbox]:checked::before{filter:sepia(1) saturate(2) hue-rotate(-10deg) brightness(.75)}
+.wp-core-ui.login .button-primary{background:#1C1B19;border-color:#1C1B19;color:#FAF7F2;border-radius:2px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;font-size:12px;padding:0 22px;min-height:40px;line-height:38px;box-shadow:none;text-shadow:none}
+.wp-core-ui.login .button-primary:hover,.wp-core-ui.login .button-primary:focus{background:#8A6A43;border-color:#8A6A43}
+.wp-core-ui.login .button-primary:focus{box-shadow:0 0 0 1px #fff,0 0 0 3px #A98A5F}
+.login #nav,.login #backtoblog{text-align:center;padding:0;margin:18px 0 0;font-size:12.5px}
+.login #nav a,.login #backtoblog a,.login .privacy-policy-page-link a{color:#6B655C;text-decoration:none}
+.login #nav a:hover,.login #backtoblog a:hover{color:#8A6A43}
+.login #login_error,.login .message,.login .success{border-left:3px solid #A98A5F;border-radius:2px;box-shadow:0 1px 2px rgba(28,27,25,.05);background:#fff}
+.login #login_error{border-left-color:#C0392B}
+.language-switcher{display:none}
+.ospa-powered{text-align:center;margin:40px 0 26px;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:#BDB5A8}
+@media (max-width:420px){#login{width:auto;padding:8vh 18px 0}.login form{padding:22px}}

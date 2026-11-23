@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OSPITANO_BOOKING_VERSION', '1.2.0' );
+define( 'OSPITANO_BOOKING_VERSION', '1.2.1' );
 define( 'OSPITANO_BOOKING_DEFAULT_CORE', 'https://core.ospitano.eu' );
 
 /**

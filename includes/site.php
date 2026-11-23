@@ -156,3 +156,112 @@ add_filter(
 	10,
 	2
 );
+
+/* ---------- short booking links from the guest chat ---------- */
+
+/** What the hotel sells (room types, extras, offers), from the platform; cached for ten minutes. */
+function ospitano_site_overview( $lang = 'bg' ) {
+	$key = 'ospitano_overview_' . sanitize_key( $lang );
+	$o   = get_transient( $key );
+	if ( is_array( $o ) ) {
+		return $o;
+	}
+	if ( ! function_exists( 'ospitano_core_public' ) ) {
+		return array();
+	}
+	$o = ospitano_core_public( 'overview', array( 'lang' => $lang ) );
+	if ( is_wp_error( $o ) ) {
+		return array();
+	}
+	set_transient( $key, $o, 10 * MINUTE_IN_SECONDS );
+	return $o;
+}
+
+/** Room or extra from a short word in a link ("classic", "family", "zakuska"): matched on code and name. */
+function ospitano_site_match( $items, $word, $aliases, $id_key ) {
+	$word  = strtolower( trim( (string) $word ) );
+	$needs = array_merge( array( $word ), $aliases[ $word ] ?? array() );
+	foreach ( $items as $it ) {
+		$hay = mb_strtolower( ( $it['code'] ?? '' ) . ' ' . ( $it['name'] ?? '' ) );
+		foreach ( $needs as $n ) {
+			if ( '' !== $n && false !== mb_strpos( $hay, mb_strtolower( $n ) ) ) {
+				return (int) $it[ $id_key ];
+			}
+		}
+	}
+	return 0;
+}
+
+/**
+ * The guest chat links to "?osp_book=1&in=…&out=…&room=classic&adults=2&add=zakuska&fn=…".
+ * Once the site books on OSPITANO, send that straight to the checkout with the room and extras chosen.
+ */
+add_action(
+	'init',
+	function () {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- a plain link, nothing is saved here.
+		if ( empty( $_GET['osp_book'] ) || ! ospitano_site_replacing() ) {
+			return;
+		}
+		$g    = fn( $k ) => isset( $_GET[ $k ] ) ? sanitize_text_field( wp_unslash( $_GET[ $k ] ) ) : '';
+		$date = fn( $k ) => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $g( $k ) ) ? $g( $k ) : '';
+		// phpcs:enable
+		$lang  = function_exists( 'pll_current_language' ) && pll_current_language( 'slug' ) ? pll_current_language( 'slug' ) : 'bg';
+		$o     = ospitano_site_overview( 'bg' );
+		$room  = ospitano_site_match(
+			$o['room_types'] ?? array(),
+			$g( 'room' ),
+			array(
+				'family' => array( 'фамил', 'family' ),
+				'suite'  => array( 'suite', 'сюит' ),
+			),
+			'room_type_id'
+		);
+		$extra = array();
+		foreach ( array_filter( explode( ',', $g( 'add' ) ) ) as $w ) {
+			$id = ospitano_site_match(
+				$o['services'] ?? array(),
+				$w,
+				array(
+					'zakuska'  => array( 'закуск', 'breakfast' ),
+					'transfer' => array( 'трансфер', 'transfer' ),
+					'spa'      => array( 'спа', 'spa' ),
+					'late'     => array( 'късно напускане', 'late' ),
+					'dog'      => array( 'куче', 'dog', 'pet' ),
+				),
+				'service_id'
+			);
+			if ( $id ) {
+				$extra[] = $id;
+			}
+		}
+		$q = array_filter(
+			array(
+				'in'       => $date( 'in' ),
+				'out'      => $date( 'out' ),
+				'adults'   => max( 1, (int) $g( 'adults' ) ),
+				'children' => max( 0, (int) $g( 'children' ) ),
+				'ages'     => preg_replace( '/[^0-9,]/', '', $g( 'ages' ) ),
+				'type'     => $room ? $room : '',
+				'svc'      => implode( ',', $extra ),
+				'fn'       => $g( 'fn' ),
+				'ln'       => $g( 'ln' ),
+				'email'    => sanitize_email( $g( 'email' ) ),
+				'phone'    => $g( 'phone' ),
+				'lang'     => 'bg' !== $lang ? $lang : '',
+			),
+			fn( $v ) => '' !== $v && null !== $v
+		);
+		$pages = ospitano_site_pages();
+		$to    = $room && $q['in'] && $q['out'] ? $pages['checkout'] : $pages['results'];
+		if ( ! $to ) {
+			return;
+		}
+		if ( ! $room ) {
+			unset( $q['type'], $q['svc'], $q['fn'], $q['ln'], $q['email'], $q['phone'] );
+		}
+		wp_safe_redirect( add_query_arg( array_map( 'rawurlencode', $q ), $to ), 302 );
+		exit;
+	},
+	0
+);

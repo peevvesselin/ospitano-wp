@@ -73,13 +73,13 @@ add_action(
 		if ( ospitano_rooms_old_plugin_active() ) {
 			return;
 		}
-		foreach ( ospitano_site_replaced_tags() as $tag => $kind ) {
+		foreach ( ospitano_site_replaced_tags() + array( 'mphb_rooms' => 'rooms' ) as $tag => $kind ) {
 			if ( ! shortcode_exists( $tag ) ) {
 				add_shortcode( $tag, fn() => ospitano_site_part( $kind ) );
 			}
 		}
 		// Its other shortcodes (room lists, single parts) are drawn by us on the room page or have no use any more.
-		foreach ( array( 'mphb_rooms', 'mphb_room', 'mphb_availability_calendar', 'mphb_booking_form', 'mphb_services', 'mphb_service', 'mphb_rates', 'mphb_booking_confirmation', 'mphb_account', 'mphb_booking_cancellation', 'mphb_search_results_page' ) as $tag ) {
+		foreach ( array( 'mphb_room', 'mphb_availability_calendar', 'mphb_booking_form', 'mphb_services', 'mphb_service', 'mphb_rates', 'mphb_booking_confirmation', 'mphb_account', 'mphb_booking_cancellation', 'mphb_search_results_page' ) as $tag ) {
 			if ( ! shortcode_exists( $tag ) ) {
 				add_shortcode( $tag, '__return_empty_string' );
 			}
@@ -178,6 +178,9 @@ add_filter(
 	},
 	20
 );
+
+/* [ospitano_rooms]: all rooms with price "from" and a link to each room page. */
+add_shortcode( 'ospitano_rooms', fn() => ospitano_site_part( 'rooms' ) );
 
 /* [ospitano_room type="12" details="0"] anywhere. */
 add_shortcode(

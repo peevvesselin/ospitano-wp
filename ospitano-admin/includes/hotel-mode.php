@@ -8,32 +8,105 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Hide every top-level menu item that is not on the hotel list.
+// The hotel menu: five sections, built from scratch.
+//   Начало · Резервации · Асистенти · Сайт · Профил и помощ
 add_action(
 	'admin_menu',
 	function () {
 		if ( ! OSPA::hotel() ) {
 			return;
 		}
-		global $menu, $submenu;
-		$keep = OSPA::options()['menu'];
-		unset( $submenu['index.php'] ); // Only "Начало" and "Updates" live there.
-		foreach ( (array) $menu as $pos => $item ) {
-			$slug = $item[2] ?? '';
-			if ( '' === $slug || 0 === strpos( $item[4] ?? '', 'wp-menu-separator' ) ) {
-				unset( $menu[ $pos ] );
-				continue;
-			}
-			if ( ! in_array( $slug, $keep, true ) ) {
-				unset( $menu[ $pos ] );
-			}
+		global $menu, $submenu, $ospa_assistants;
+		$old_menu = (array) $menu;
+		$old_sub  = (array) $submenu;
+
+		$ospa_assistants = ospa_find_assistants( $old_menu, $old_sub );
+
+		$menu    = array();
+		$submenu = array();
+
+		$menu[2] = array( 'Начало', 'read', 'index.php', '', 'menu-top menu-top-first menu-icon-dashboard', 'menu-dashboard', 'dashicons-admin-home' );
+
+		add_menu_page( 'Резервации', 'Резервации', 'read', 'ospa-bookings', 'ospa_page_bookings', 'dashicons-calendar-alt', 3 );
+
+		add_menu_page( 'Асистенти', 'Асистенти', 'read', 'ospa-assistants', 'ospa_page_assistants', 'dashicons-format-chat', 4 );
+		add_submenu_page( 'ospa-assistants', 'Асистенти', 'Всички асистенти', 'read', 'ospa-assistants', 'ospa_page_assistants' );
+		foreach ( $ospa_assistants as $a ) {
+			$submenu['ospa-assistants'][] = array( $a['title'], 'read', $a['slug'], $a['title'] );
 		}
-		// The hotel's own profile lives under Users for admins; give it its own item.
-		if ( in_array( 'profile.php', $keep, true ) && current_user_can( 'list_users' ) ) {
-			add_menu_page( 'Профил', 'Профил', 'read', 'profile.php', '', 'dashicons-admin-users', 98 );
-		}
+
+		add_menu_page( 'Сайт', 'Сайт', 'edit_pages', 'edit.php?post_type=page', '', 'dashicons-admin-site-alt3', 5 );
+		$submenu['edit.php?post_type=page'] = array(
+			array( 'Страници', 'edit_pages', 'edit.php?post_type=page' ),
+			array( 'Нова страница', 'edit_pages', 'post-new.php?post_type=page' ),
+			array( 'Снимки и файлове', 'upload_files', 'upload.php' ),
+		);
+
+		add_menu_page( 'Профил и помощ', 'Профил и помощ', 'read', 'profile.php', '', 'dashicons-admin-users', 6 );
+		$submenu['profile.php'] = array( array( 'Профил', 'read', 'profile.php' ) );
+		add_submenu_page( 'profile.php', 'Помощ', 'Помощ', 'read', 'ospa-help', 'ospa_page_help' );
 	},
 	9999
+);
+
+/**
+ * The hotel's assistants as they are registered on this site (guest assistant, Milcho),
+ * without their technical pages (keys, models, costs, logs).
+ *
+ * @return array<int,array{slug:string,page:string,title:string}>
+ */
+function ospa_find_assistants( $old_menu, $old_sub ) {
+	$skip = '/(настрой|setting|ключ|key|api|модел|model|разход|cost|token|лог|log|debug|диагност|import|export|license|лиценз)/iu';
+	$out  = array();
+	$add  = function ( $page, $title ) use ( &$out, $skip ) {
+		$title = trim( wp_strip_all_tags( preg_replace( '#<span.*$#s', '', $title ) ) );
+		if ( '' === $page || '' === $title || preg_match( $skip, $title . ' ' . $page ) || isset( $out[ $page ] ) ) {
+			return;
+		}
+		$out[ $page ] = array(
+			'slug'  => false === strpos( $page, '.php' ) ? 'admin.php?page=' . $page : $page,
+			'page'  => $page,
+			'title' => $title,
+		);
+	};
+	// Everything under the "OSPITANO AI" family of menus (guest assistant and friends).
+	foreach ( array( 'ospitano-ai', 'ospitano-assistant', 'ospitano-chat', 'ospitano-mila', 'mila' ) as $parent ) {
+		foreach ( (array) ( $old_sub[ $parent ] ?? array() ) as $it ) {
+			$add( $it[2] ?? '', $it[0] ?? '' );
+		}
+	}
+	// Milcho, wherever it hangs.
+	foreach ( $old_menu as $it ) {
+		if ( 'ospitano-manager' === ( $it[2] ?? '' ) ) {
+			$add( 'ospitano-manager', 'Милчо (управител)' );
+		}
+	}
+	foreach ( $old_sub as $items ) {
+		foreach ( (array) $items as $it ) {
+			if ( 'ospitano-manager' === ( $it[2] ?? '' ) ) {
+				$add( 'ospitano-manager', 'Милчо (управител)' );
+			}
+		}
+	}
+	return array_values( $out );
+}
+
+// Keep the right section highlighted on the assistants' own pages.
+add_filter(
+	'parent_file',
+	function ( $parent ) {
+		global $plugin_page, $submenu_file, $ospa_assistants;
+		if ( ! OSPA::hotel() || ! $plugin_page ) {
+			return $parent;
+		}
+		foreach ( (array) $ospa_assistants as $a ) {
+			if ( $a['page'] === $plugin_page ) {
+				$submenu_file = $a['slug']; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
+				return 'ospa-assistants';
+			}
+		}
+		return $parent;
+	}
 );
 
 // Typing the address of a system screen leads back to the start page.

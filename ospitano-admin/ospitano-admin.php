@@ -23,6 +23,7 @@ require_once OSPA_DIR . 'includes/class-ospa.php';
 require_once OSPA_DIR . 'includes/login.php';
 require_once OSPA_DIR . 'includes/brand.php';
 require_once OSPA_DIR . 'includes/hotel-mode.php';
+require_once OSPA_DIR . 'includes/pages.php';
 require_once OSPA_DIR . 'includes/dashboard.php';
 require_once OSPA_DIR . 'includes/settings.php';
 

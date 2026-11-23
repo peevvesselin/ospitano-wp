@@ -146,3 +146,31 @@ input[type=radio]:checked::before{background-color:var(--ospa-brassd)}
 
 /* ---------- Settings page ---------- */
 .ospa-checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px 18px;max-width:900px;padding:14px 18px;background:#fff;border:1px solid var(--ospa-sand);border-radius:4px}
+
+/* ---------- Hotel sections ---------- */
+.ospa-section{max-width:1180px}
+.ospa-section-head{margin:18px 0 22px}
+.ospa-section .ospa-eyebrow{color:var(--ospa-brassd)}
+.wrap.ospa-section h1.ospa-title{margin:0;padding:0;font-size:38px;font-weight:500}
+.ospa-lead{max-width:720px;margin:8px 0 0;font-size:14px;line-height:1.6;color:var(--ospa-taupe)}
+.ospa-card-title .ospa-ext{width:14px;height:14px;font-size:14px;color:var(--ospa-stone);margin:0 0 0 4px;vertical-align:-1px}
+.ospa-tip{display:flex;gap:12px;align-items:flex-start;margin-top:22px;padding:16px 18px;background:var(--ospa-sand);border-left:3px solid var(--ospa-brass);border-radius:2px;font-size:13.5px;line-height:1.55}
+.ospa-tip .dashicons{color:var(--ospa-brassd)}
+.ospa-empty{padding:18px;background:#fff;border:1px dashed var(--ospa-stone);border-radius:4px;color:var(--ospa-taupe)}
+.ospa-faq{max-width:820px;display:grid;gap:8px}
+.ospa-faq details{background:#fff;border:1px solid var(--ospa-sand);border-radius:4px;padding:0 18px}
+.ospa-faq summary{cursor:pointer;padding:14px 0;font-weight:600;font-size:14px;list-style:none}
+.ospa-faq summary::-webkit-details-marker{display:none}
+.ospa-faq summary:after{content:"+";float:right;color:var(--ospa-brass);font-size:18px;line-height:1}
+.ospa-faq details[open] summary:after{content:"–"}
+.ospa-faq details p{margin:0 0 16px;color:var(--ospa-char);line-height:1.6}
+.ospa-contact{margin-top:26px}
+.ospa-contact p{display:flex;flex-wrap:wrap;gap:22px}
+.ospa-contact a{text-decoration:none;font-weight:500}
+.ospa-head-btn{position:relative;z-index:1;display:inline-block;margin-top:18px;padding:9px 18px;border:1px solid var(--ospa-brass);border-radius:2px;color:var(--ospa-cream);text-decoration:none;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.ospa-head-btn:hover,.ospa-head-btn:focus{background:var(--ospa-brass);color:var(--ospa-ink)}
+.ospa-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
+.ospa-stat{padding:18px 20px;background:#fff;border:1px solid var(--ospa-sand);border-radius:4px}
+.ospa-stat-n{display:block;font-family:var(--ospa-serif);font-size:38px;font-weight:600;line-height:1;color:var(--ospa-ink)}
+.ospa-stat-l{display:block;margin-top:6px;font-size:12px;color:var(--ospa-taupe)}
+@media screen and (max-width:782px){.ospa-stats{grid-template-columns:1fr 1fr}}

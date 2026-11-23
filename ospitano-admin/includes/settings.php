@@ -18,24 +18,6 @@ add_action(
 	}
 );
 
-// Snapshot of the full top-level menu, taken before hotel mode trims it, for the checkbox list.
-add_action(
-	'admin_menu',
-	function () {
-		global $menu, $ospa_full_menu;
-		$ospa_full_menu = array();
-		foreach ( (array) $menu as $item ) {
-			$slug = $item[2] ?? '';
-			if ( '' === $slug || false !== strpos( $item[4] ?? '', 'wp-menu-separator' ) ) {
-				continue;
-			}
-			$title = trim( wp_strip_all_tags( preg_replace( '#<span.*$#s', '', $item[0] ) ) );
-			$ospa_full_menu[ $slug ] = '' !== $title ? $title : $slug;
-		}
-	},
-	9998
-);
-
 add_action(
 	'admin_post_ospa_save',
 	function () {
@@ -48,16 +30,13 @@ add_action(
 		if ( ! in_array( $me, $full, true ) ) {
 			$full[] = $me; // Never lock yourself out.
 		}
-		$menu = array_map( 'sanitize_text_field', array_map( 'wp_unslash', (array) ( $_POST['menu'] ?? array() ) ) );
-		if ( ! in_array( 'index.php', $menu, true ) ) {
-			$menu[] = 'index.php';
-		}
 		update_option(
 			OSPA::OPT,
 			array(
 				'full_users' => array_values( array_unique( $full ) ),
-				'menu'       => array_values( array_unique( $menu ) ),
 				'hotel_mode' => ! empty( $_POST['hotel_mode'] ),
+				'help_email' => sanitize_email( wp_unslash( $_POST['help_email'] ?? '' ) ),
+				'help_phone' => sanitize_text_field( wp_unslash( $_POST['help_phone'] ?? '' ) ),
 			)
 		);
 		wp_safe_redirect( admin_url( 'options-general.php?page=ospitano-admin&saved=1' ) );
@@ -66,7 +45,6 @@ add_action(
 );
 
 function ospa_settings_page() {
-	global $ospa_full_menu;
 	$o     = OSPA::options();
 	$users = get_users(
 		array(
@@ -85,7 +63,7 @@ function ospa_settings_page() {
 			<?php wp_nonce_field( 'ospa_save' ); ?>
 
 			<h2>Кратко меню за хотела</h2>
-			<p><label><input type="checkbox" name="hotel_mode" value="1" <?php checked( $o['hotel_mode'] ); ?>> Включено. Хората, които не са отметнати по-долу, виждат само избраните точки от менюто.</label></p>
+			<p><label><input type="checkbox" name="hotel_mode" value="1" <?php checked( $o['hotel_mode'] ); ?>> Включено. Хората, които не са отметнати по-долу, виждат менюто на хотела: Начало, Резервации, Асистенти, Сайт, Профил и помощ.</label></p>
 
 			<h2>Пълен достъп</h2>
 			<p class="description">Тези хора виждат цялото меню и настройките. Всички останали виждат краткото меню.</p>
@@ -96,14 +74,11 @@ function ospa_settings_page() {
 				<?php endforeach; ?>
 			</fieldset>
 
-			<h2>Какво вижда хотелът в менюто</h2>
-			<fieldset class="ospa-checks">
-				<?php foreach ( (array) $ospa_full_menu as $slug => $title ) : ?>
-					<label><input type="checkbox" name="menu[]" value="<?php echo esc_attr( $slug ); ?>" <?php checked( in_array( $slug, $o['menu'], true ) ); ?> <?php disabled( 'index.php' === $slug ); ?>>
-						<?php echo esc_html( $title ); ?></label>
-				<?php endforeach; ?>
-				<label><input type="checkbox" name="menu[]" value="profile.php" <?php checked( in_array( 'profile.php', $o['menu'], true ) ); ?>> Профил</label>
-			</fieldset>
+			<h2>Връзка с OSPITANO на страница „Помощ“</h2>
+			<table class="form-table" role="presentation">
+				<tr><th scope="row"><label for="ospa-help-phone">Телефон</label></th><td><input id="ospa-help-phone" class="regular-text" name="help_phone" value="<?php echo esc_attr( $o['help_phone'] ); ?>"></td></tr>
+				<tr><th scope="row"><label for="ospa-help-email">Имейл</label></th><td><input id="ospa-help-email" type="email" class="regular-text" name="help_email" value="<?php echo esc_attr( $o['help_email'] ); ?>"></td></tr>
+			</table>
 			<?php submit_button( 'Запази' ); ?>
 		</form>
 	</div>

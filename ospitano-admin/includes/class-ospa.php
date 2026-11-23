@@ -11,17 +11,6 @@ class OSPA {
 
 	const OPT = 'ospitano_admin';
 
-	/** Top-level menu slugs a hotel user sees by default (others are hidden). */
-	const DEFAULT_MENU = array(
-		'index.php',
-		'ospitano-ai',
-		'ospitano-manager',
-		'osai',
-		'edit.php?post_type=page',
-		'upload.php',
-		'profile.php',
-	);
-
 	/** Screens a hotel user cannot open even by typing the address. */
 	const BLOCKED_SCREENS = array(
 		'about.php',
@@ -68,8 +57,9 @@ class OSPA {
 		$o = is_array( $o ) ? $o : array();
 		return array(
 			'full_users' => array_values( array_map( 'intval', (array) ( $o['full_users'] ?? array() ) ) ),
-			'menu'       => isset( $o['menu'] ) ? array_values( (array) $o['menu'] ) : self::DEFAULT_MENU,
 			'hotel_mode' => isset( $o['hotel_mode'] ) ? (bool) $o['hotel_mode'] : true,
+			'help_email' => (string) ( $o['help_email'] ?? '' ),
+			'help_phone' => (string) ( $o['help_phone'] ?? '' ),
 		);
 	}
 

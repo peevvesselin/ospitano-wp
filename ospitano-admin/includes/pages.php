@@ -1,0 +1,148 @@
+<?php
+/**
+ * Hotel sections that live in this plugin: Резервации, Асистенти, Помощ.
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Address of the hotel's booking administration on the OSPITANO platform.
+ */
+function ospa_platform_url( $path = '' ) {
+	$b    = get_option( 'ospitano_booking', array() );
+	$core = is_array( $b ) && ! empty( $b['core_url'] ) ? $b['core_url'] : ( defined( 'OSPITANO_BOOKING_DEFAULT_CORE' ) ? OSPITANO_BOOKING_DEFAULT_CORE : 'https://core.ospitano.eu' );
+	$code = is_array( $b ) && ! empty( $b['hotel'] ) ? sanitize_title( $b['hotel'] ) : '';
+	$url  = untrailingslashit( $core ) . '/admin';
+	if ( $code ) {
+		$url .= '/' . rawurlencode( $code );
+		if ( $path ) {
+			$url .= '/' . ltrim( $path, '/' );
+		}
+	}
+	return $url;
+}
+
+/**
+ * Cards grid used by the section pages and the start page.
+ *
+ * @param array<int,array{title:string,url:string,icon:string,descr?:string,ext?:bool}> $cards
+ */
+function ospa_cards( $cards ) {
+	echo '<div class="ospa-cards">';
+	foreach ( $cards as $c ) {
+		$ext = ! empty( $c['ext'] );
+		printf(
+			'<a class="ospa-card%s" href="%s"%s><span class="dashicons %s" aria-hidden="true"></span><span class="ospa-card-title">%s%s</span>%s</a>',
+			$ext ? ' ospa-card-ext' : '',
+			esc_url( $c['url'] ),
+			$ext ? ' target="_blank" rel="noopener"' : '',
+			esc_attr( $c['icon'] ),
+			esc_html( $c['title'] ),
+			$ext ? ' <span class="dashicons dashicons-external ospa-ext" aria-label="отваря се в нов раздел"></span>' : '',
+			empty( $c['descr'] ) ? '' : '<span class="ospa-card-descr">' . esc_html( $c['descr'] ) . '</span>'
+		);
+	}
+	echo '</div>';
+}
+
+function ospa_section_head( $eyebrow, $title, $sub ) {
+	?>
+	<div class="ospa-section-head">
+		<p class="ospa-eyebrow"><?php echo esc_html( $eyebrow ); ?></p>
+		<h1 class="ospa-title"><?php echo esc_html( $title ); ?></h1>
+		<p class="ospa-lead"><?php echo esc_html( $sub ); ?></p>
+	</div>
+	<?php
+}
+
+function ospa_page_bookings() {
+	$milcho = ospa_assistant_url( 'ospitano-manager' );
+	echo '<div class="wrap ospa-section">';
+	ospa_section_head( 'Резервации', 'Управление на хотела', 'Календарът, цените, наличностите и офертите се управляват в системата за резервации на OSPITANO. Всяка промяна там важи веднага за сайта.' );
+	ospa_cards(
+		array(
+			array( 'title' => 'Календар на заетостта', 'url' => ospa_platform_url( 'calendar' ), 'icon' => 'dashicons-calendar-alt', 'descr' => 'Кои стаи са заети и кои свободни по дни', 'ext' => true ),
+			array( 'title' => 'Резервации', 'url' => ospa_platform_url( 'bookings' ), 'icon' => 'dashicons-clipboard', 'descr' => 'Нови, потвърдени и отменени резервации', 'ext' => true ),
+			array( 'title' => 'Цени и наличности', 'url' => ospa_platform_url( 'rates' ), 'icon' => 'dashicons-tag', 'descr' => 'Цени по дати, минимален престой, затворени дни', 'ext' => true ),
+			array( 'title' => 'Стаи', 'url' => ospa_platform_url( 'room-types' ), 'icon' => 'dashicons-admin-multisite', 'descr' => 'Типове стаи, снимки, описания и капацитет', 'ext' => true ),
+			array( 'title' => 'Услуги и екстри', 'url' => ospa_platform_url( 'services' ), 'icon' => 'dashicons-star-filled', 'descr' => 'Закуска, паркинг, СПА и други добавки', 'ext' => true ),
+			array( 'title' => 'Оферти и промокодове', 'url' => ospa_platform_url( 'coupons' ), 'icon' => 'dashicons-megaphone', 'descr' => 'Отстъпки и кодове за директни резервации', 'ext' => true ),
+		)
+	);
+	if ( $milcho ) {
+		echo '<div class="ospa-tip"><span class="dashicons dashicons-lightbulb" aria-hidden="true"></span><div><strong>По-бързо през Милчо.</strong> Днешните пристигания, разпределение на стаите и справки са в <a href="' . esc_url( $milcho ) . '">Милчо</a>.</div></div>';
+	}
+	echo '</div>';
+}
+
+/** URL of an assistant page that exists on this site, or ''. */
+function ospa_assistant_url( $page ) {
+	global $_registered_pages;
+	foreach ( (array) $_registered_pages as $hook => $on ) {
+		if ( substr( $hook, -strlen( '_page_' . $page ) ) === '_page_' . $page ) {
+			return admin_url( 'admin.php?page=' . $page );
+		}
+	}
+	return '';
+}
+
+function ospa_page_assistants() {
+	global $ospa_assistants;
+	$list = (array) $ospa_assistants;
+	if ( ! $list ) {
+		// Full users previewing nothing, or the menu was not rebuilt: look them up again.
+		global $menu, $submenu;
+		$list = ospa_find_assistants( (array) $menu, (array) $submenu );
+	}
+	$descr = array(
+		'ospitano-manager' => 'Вашият помощник за управлението: пристигания, стаи, справки и чат върху резервациите',
+	);
+	$cards = array();
+	foreach ( $list as $a ) {
+		$cards[] = array(
+			'title' => $a['title'],
+			'url'   => admin_url( $a['slug'] ),
+			'icon'  => 'ospitano-manager' === $a['page'] ? 'dashicons-chart-area' : 'dashicons-format-chat',
+			'descr' => $descr[ $a['page'] ] ?? '',
+		);
+	}
+	echo '<div class="wrap ospa-section">';
+	ospa_section_head( 'Асистенти', 'Вашите асистенти', 'Асистентът за гости отговаря в сайта денонощно, а Милчо помага на управителя. Тук виждате разговорите и обучавате асистентите с информация за хотела.' );
+	if ( $cards ) {
+		ospa_cards( $cards );
+	} else {
+		echo '<p class="ospa-empty">Все още няма свързани асистенти. Свържете се с OSPITANO, за да ги включим.</p>';
+	}
+	echo '</div>';
+}
+
+function ospa_page_help() {
+	$o = OSPA::options();
+	echo '<div class="wrap ospa-section">';
+	ospa_section_head( 'Помощ', 'Как да работите с панела', 'Кратки отговори на най-честите въпроси.' );
+	$faq = array(
+		'Как да сменя цена или да затворя дата?' => 'Отворете Резервации → Цени и наличности. Промяната важи веднага за сайта.',
+		'Как да видя кой пристига днес?'         => 'На Начало виждате днешните пристигания и заминавания. Подробности има в Милчо.',
+		'Как да сменя текст или снимка в сайта?'  => 'Отворете Сайт → Страници, изберете страницата и редактирайте текста. Снимките се качват от Сайт → Снимки и файлове.',
+		'Как да науча асистента на нещо ново?'    => 'Отворете Асистенти и добавете въпроса и отговора в обучението на асистента за гости.',
+		'Как да сменя паролата си?'               => 'Отворете Профил и помощ → Профил и натиснете „Нова парола“ най-долу.',
+	);
+	echo '<div class="ospa-faq">';
+	foreach ( $faq as $q => $a ) {
+		echo '<details><summary>' . esc_html( $q ) . '</summary><p>' . esc_html( $a ) . '</p></details>';
+	}
+	echo '</div>';
+	if ( $o['help_email'] || $o['help_phone'] ) {
+		echo '<div class="ospa-contact"><h2>Връзка с OSPITANO</h2><p>';
+		if ( $o['help_phone'] ) {
+			echo '<a href="tel:' . esc_attr( preg_replace( '/[^0-9+]/', '', $o['help_phone'] ) ) . '"><span class="dashicons dashicons-phone" aria-hidden="true"></span> ' . esc_html( $o['help_phone'] ) . '</a>';
+		}
+		if ( $o['help_email'] ) {
+			echo '<a href="mailto:' . esc_attr( $o['help_email'] ) . '"><span class="dashicons dashicons-email" aria-hidden="true"></span> ' . esc_html( $o['help_email'] ) . '</a>';
+		}
+		echo '</p></div>';
+	}
+	echo '</div>';
+}

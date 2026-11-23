@@ -51,7 +51,8 @@ add_action(
 add_filter(
 	'admin_title',
 	function ( $admin_title, $title ) {
-		return wp_strip_all_tags( $title ) . ' ‹ ' . OSPA::hotel_name();
+		$title = trim( wp_strip_all_tags( (string) $title ) );
+		return ( '' !== $title ? $title . ' ‹ ' : '' ) . OSPA::hotel_name();
 	},
 	99,
 	2

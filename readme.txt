@@ -34,5 +34,8 @@ Shortcode options: `[ospitano_booking hotel="your-code" lang="en"]`.
 
 == Changelog ==
 
+= 1.3.1 =
+* Room pages get translations: once the platform has a room's name in another language, a translated room page is created and linked in Polylang.
+
 = 1.0.0 =
 * First release.

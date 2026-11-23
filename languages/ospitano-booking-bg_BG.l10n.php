@@ -1,6 +1,11 @@
 <?php
 return ['domain'=>'ospitano-booking','plural-forms'=>'nplurals=2; plural=(n != 1);','language'=>'bg_BG','messages'=>[
 'Assistants'=>'Асистенти',
+'Guests'=>'Гости',
+'up to %d'=>'до %d',
+'Room pages'=>'Страници на стаите',
+'Room page'=>'Страница на стая',
+'Room amenities'=>'Удобства в стаите',
 'Book button'=>'Бутон „Резервирай“',
 'Booking pages'=>'Страници за резервация',
 'Button colour'=>'Цвят на бутона',

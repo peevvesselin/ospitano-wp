@@ -120,3 +120,18 @@ msgstr "Този профил в OSPITANO е за друг код на хоте�
 
 msgid "The connection was not completed. Please try again."
 msgstr "Връзката не беше завършена. Опитайте отново."
+
+msgid "Guests"
+msgstr "Гости"
+
+msgid "up to %d"
+msgstr "до %d"
+
+msgid "Room pages"
+msgstr "Страници на стаите"
+
+msgid "Room page"
+msgstr "Страница на стая"
+
+msgid "Room amenities"
+msgstr "Удобства в стаите"

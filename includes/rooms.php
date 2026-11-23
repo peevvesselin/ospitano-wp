@@ -66,22 +66,6 @@ add_action(
 	20
 );
 
-/* Translations of the room pages keep working with Polylang. */
-add_filter(
-	'pll_get_post_types',
-	function ( $types ) {
-		$types[ OSPITANO_ROOM_PT ] = OSPITANO_ROOM_PT;
-		return $types;
-	}
-);
-add_filter(
-	'pll_get_taxonomies',
-	function ( $tax ) {
-		$tax[ OSPITANO_ROOM_TAX ] = OSPITANO_ROOM_TAX;
-		return $tax;
-	}
-);
-
 /* The previous plugin's booking shortcodes keep showing our parts after it is switched off. */
 add_action(
 	'init',
@@ -150,6 +134,9 @@ function ospitano_rooms_box( $type, $currency, $with_details = true ) {
 				continue;
 			}
 			$h .= '<li><span class="ospitano-room-details__l">' . esc_html( rtrim( (string) $d['label'], ': ' ) ) . ':</span> ' . esc_html( (string) $d['value'] ) . '</li>';
+		}
+		if ( ! empty( $type['max_occupancy'] ) ) {
+			$h .= '<li><span class="ospitano-room-details__l">' . esc_html__( 'Guests', 'ospitano-booking' ) . ':</span> ' . esc_html( sprintf( /* translators: %d: number of guests */ __( 'up to %d', 'ospitano-booking' ), (int) $type['max_occupancy'] ) ) . '</li>';
 		}
 		$h .= '</ul>';
 	}

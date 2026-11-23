@@ -202,6 +202,7 @@ function ospa_page_help() {
 		'Как да науча асистента на нещо ново?'    => 'Отворете Асистенти и добавете въпроса и отговора в обучението на асистента за гости.',
 		'Как да сменя паролата си?'               => 'Отворете Профил и помощ → Профил и натиснете „Нова парола“ най-долу.',
 	);
+	echo '<p class="ospa-tour-again"><a class="button" href="' . esc_url( ospa_tour_url() ) . '">Покажи ми панела отново</a></p>';
 	echo '<div class="ospa-faq">';
 	foreach ( $faq as $q => $a ) {
 		echo '<details><summary>' . esc_html( $q ) . '</summary><p>' . esc_html( $a ) . '</p></details>';

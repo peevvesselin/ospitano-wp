@@ -56,11 +56,11 @@ add_action(
  * @return array<int,array{slug:string,page:string,title:string}>
  */
 function ospa_find_assistants( $old_menu, $old_sub ) {
-	$skip = '/(настрой|setting|ключ|key|api|модел|model|разход|cost|token|лог|log|debug|диагност|import|export|license|лиценз)/iu';
+	$skip = '/(настрой|setting|ключ|api|модел|model|разход|cost|token|тест|test|debug|диагност|license|лиценз)/iu';
 	$out  = array();
 	$add  = function ( $page, $title ) use ( &$out, $skip ) {
 		$title = trim( wp_strip_all_tags( preg_replace( '#<span.*$#s', '', $title ) ) );
-		if ( '' === $page || '' === $title || preg_match( $skip, $title . ' ' . $page ) || isset( $out[ $page ] ) ) {
+		if ( '' === $page || '' === $title || preg_match( $skip, $title ) || isset( $out[ $page ] ) ) {
 			return;
 		}
 		$out[ $page ] = array(
@@ -95,12 +95,20 @@ function ospa_find_assistants( $old_menu, $old_sub ) {
 add_filter(
 	'parent_file',
 	function ( $parent ) {
-		global $plugin_page, $submenu_file, $ospa_assistants;
-		if ( ! OSPA::hotel() || ! $plugin_page ) {
+		global $plugin_page, $submenu_file, $ospa_assistants, $typenow, $pagenow;
+		if ( ! OSPA::hotel() ) {
+			return $parent;
+		}
+		if ( 'ospa-help' === $plugin_page ) {
+			$submenu_file = 'ospa-help'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
+			return 'profile.php';
+		}
+		$here = $plugin_page ? $plugin_page : ( $typenow && in_array( $pagenow, array( 'edit.php', 'post.php', 'post-new.php' ), true ) ? 'edit.php?post_type=' . $typenow : '' );
+		if ( '' === $here ) {
 			return $parent;
 		}
 		foreach ( (array) $ospa_assistants as $a ) {
-			if ( $a['page'] === $plugin_page ) {
+			if ( $a['page'] === $here ) {
 				$submenu_file = $a['slug']; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 				return 'ospa-assistants';
 			}
@@ -144,6 +152,38 @@ add_action(
 		echo '<style>.update-nag,.plugin-update-tr,.update-plugins,.update-count,#wp-admin-bar-updates,.notice.is-dismissible.wpml-notice{display:none!important}</style>';
 	},
 	1
+);
+
+// Plugins' own notices and promos (upgrade offers, surveys, compatibility hints) are not for the hotel.
+add_action(
+	'in_admin_header',
+	function () {
+		if ( ! OSPA::hotel() ) {
+			return;
+		}
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
+		remove_all_actions( 'network_admin_notices' );
+		remove_all_actions( 'user_admin_notices' );
+	},
+	9999
+);
+
+// Top bar for the hotel: our mark, the hotel's name, the account menu and nothing else.
+add_action(
+	'admin_bar_menu',
+	function ( $bar ) {
+		if ( ! OSPA::hotel() ) {
+			return;
+		}
+		$keep = array( 'ospa-brand', 'site-name', 'view-site', 'top-secondary', 'my-account', 'user-actions', 'user-info', 'edit-profile', 'logout', 'ospa-preview', 'menu-toggle' );
+		foreach ( $bar->get_nodes() as $node ) {
+			if ( ! in_array( $node->id, $keep, true ) ) {
+				$bar->remove_node( $node->id );
+			}
+		}
+	},
+	PHP_INT_MAX
 );
 
 // Hotel users get the short top bar menu and no "Visit site / W" clutter.

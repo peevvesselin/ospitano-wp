@@ -141,7 +141,7 @@ input[type=radio]:checked::before{background-color:var(--ospa-brassd)}
 @media screen and (max-width:782px){.ospa-home-head{padding:26px 22px}.ospa-home .ospa-hello{font-size:32px}.ospa-cards{grid-template-columns:1fr 1fr;gap:10px}}
 
 /* ---------- Hotel view ---------- */
-.ospa-hotel #contextual-help-link-wrap,.ospa-hotel.index-php #screen-meta-links{display:none}
+.ospa-hotel .e-notice,.ospa-hotel .e-admin-top-bar,.ospa-hotel #e-admin-top-bar-root,.ospa-hotel .elementor-message,.ospa-hotel .notice.is-dismissible:not(#message),.ospa-hotel #contextual-help-link-wrap,.ospa-hotel.index-php #screen-meta-links{display:none}
 .ospa-preview #wpbody-content:before{content:"Виждате панела така, както го вижда хотелът.";display:block;margin:12px 20px 0 2px;padding:8px 14px;background:var(--ospa-sand);border-left:3px solid var(--ospa-brass);font-size:12.5px;color:var(--ospa-char)}
 
 /* ---------- Settings page ---------- */

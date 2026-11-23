@@ -98,6 +98,8 @@ function ospa_page_assistants() {
 	}
 	$descr = array(
 		'ospitano-manager' => 'Вашият помощник за управлението: пристигания, стаи, справки и чат върху резервациите',
+		'ospitano-ai-log'  => 'Какво питат гостите и какво им отговаря асистентът',
+		'ospitano-ai-stats' => 'Колко разговори и запитвания идват от сайта',
 	);
 	$cards = array();
 	foreach ( $list as $a ) {

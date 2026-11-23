@@ -61,11 +61,13 @@ function ospa_section_head( $eyebrow, $title, $sub ) {
 function ospa_booking_views() {
 	return array(
 		'calendar' => array( 'Календар', 'calendar', 'dashicons-calendar-alt', 'Кои стаи са заети и кои свободни по дни' ),
+		'housekeeping' => array( 'Стаи и почистване', 'housekeeping', 'dashicons-admin-home', 'Кои стаи са чисти, кои за почистване и кой ги почиства днес' ),
 		'bookings' => array( 'Резервации', 'bookings', 'dashicons-clipboard', 'Нови, потвърдени и отменени резервации' ),
 		'rates'    => array( 'Цени и наличности', 'rates', 'dashicons-tag', 'Цени по дати, минимален престой, затворени дни' ),
 		'rooms'    => array( 'Стаи', 'room-types', 'dashicons-admin-multisite', 'Типове стаи, снимки, описания и капацитет' ),
 		'services' => array( 'Услуги и екстри', 'services', 'dashicons-star-filled', 'Закуска, паркинг, СПА и други добавки' ),
 		'coupons'  => array( 'Оферти и промокодове', 'coupons', 'dashicons-megaphone', 'Отстъпки и кодове за директни резервации' ),
+		'housekeepers' => array( 'Камериерки', 'housekeepers', 'dashicons-groups', 'Хората, които почистват, и линковете за телефоните им' ),
 	);
 }
 

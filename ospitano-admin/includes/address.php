@@ -1,6 +1,6 @@
 <?php
 /**
- * Clean addresses: the panel at /admin/ and the login at /admin/login instead of /wp-admin/ and /wp-login.php.
+ * Clean addresses: the panel at /admin/ and the login at /login instead of /wp-admin/ and /wp-login.php.
  *
  * Safety:
  * - The old addresses keep working (fallback), so nobody is locked out.
@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 const OSPA_HT_MARKER = 'OSPITANO Admin';
+const OSPA_HT_VER    = '2'; // Bump when the rules below change; sites update on the next admin visit.
 
 /** True when the clean addresses are switched on and verified. */
 function ospa_clean_on() {
@@ -51,13 +52,18 @@ function ospa_htaccess_write( $on ) {
 			. "RewriteEngine On\n"
 			. "RewriteBase {$base}\n"
 			. "RewriteRule ^admin$ {$base}admin/ [R=301,L]\n"
-			. "RewriteRule ^admin/login/?$ wp-login.php [L,QSA]\n"
+			. "RewriteRule ^admin/login/?$ {$base}login [R=301,L,QSA]\n"
+			. "RewriteRule ^login/?$ wp-login.php [L,QSA]\n"
 			. "RewriteRule ^admin/(.*)$ wp-admin/$1 [L,QSA]\n"
 			. "</IfModule>\n"
 			. "# END " . OSPA_HT_MARKER . "\n\n";
 		$text  = $block . $text;
 	}
-	return false !== file_put_contents( $file, $text, LOCK_EX );
+	$ok = false !== file_put_contents( $file, $text, LOCK_EX );
+	if ( $ok ) {
+		update_option( 'ospa_ht_ver', $on ? OSPA_HT_VER : '' );
+	}
+	return $ok;
 }
 
 /** Does the server answer on /admin/? */
@@ -120,7 +126,7 @@ $ospa_login_filter = function ( $url ) {
 	if ( ! ospa_clean_on() || false === strpos( $url, 'wp-login.php' ) ) {
 		return $url;
 	}
-	return str_replace( 'wp-login.php', 'admin/login', $url );
+	return str_replace( 'wp-login.php', 'login', $url );
 };
 add_filter( 'site_url', $ospa_login_filter, 99 );
 add_filter( 'network_site_url', $ospa_login_filter, 99 );
@@ -199,3 +205,14 @@ function ospa_copy_cookie() {
 		}
 	}
 }
+
+// After a plugin update with new rules, refresh our block in .htaccess.
+add_action(
+	'admin_init',
+	function () {
+		if ( ospa_clean_on() && OSPA_HT_VER !== get_option( 'ospa_ht_ver' ) && current_user_can( 'manage_options' ) ) {
+			ospa_htaccess_write( true );
+		}
+	},
+	1
+);

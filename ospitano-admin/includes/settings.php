@@ -84,7 +84,7 @@ function ospa_settings_page() {
 			<p><label><input type="checkbox" name="hotel_mode" value="1" <?php checked( $o['hotel_mode'] ); ?>> Включено. Хората, които не са отметнати по-долу, виждат менюто на хотела: Начало, Резервации, Асистенти, Сайт, Профил и помощ.</label></p>
 
 			<h2>Адрес на панела</h2>
-			<p><label><input type="checkbox" name="clean_url" value="1" <?php checked( ospa_clean_on() ); ?>> Кратък адрес: <code><?php echo esc_html( home_url( '/admin' ) ); ?></code> за панела и <code><?php echo esc_html( home_url( '/admin/login' ) ); ?></code> за вход.</label></p>
+			<p><label><input type="checkbox" name="clean_url" value="1" <?php checked( ospa_clean_on() ); ?>> Кратък адрес: <code><?php echo esc_html( home_url( '/admin' ) ); ?></code> за панела и <code><?php echo esc_html( home_url( '/login' ) ); ?></code> за вход.</label></p>
 			<p class="description">Старите адреси продължават да работят като резервен вход.</p>
 
 			<h2>Пълен достъп</h2>

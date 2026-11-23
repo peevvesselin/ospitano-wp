@@ -239,3 +239,14 @@ add_action(
 		exit;
 	}
 );
+
+// A screen the hotel may not open leads back to the start page instead of an error.
+add_action(
+	'admin_page_access_denied',
+	function () {
+		if ( OSPA::hotel() ) {
+			wp_safe_redirect( admin_url() );
+			exit;
+		}
+	}
+);

@@ -34,6 +34,9 @@ Shortcode options: `[ospitano_booking hotel="your-code" lang="en"]`.
 
 == Changelog ==
 
+= 1.4.2 =
+* Removes the translated room pages from 1.4.1. The site's language plugin keeps room pages shared and shows them in English through ?lang=en, so separate pages are not needed.
+
 = 1.4.1 =
 * Room pages get translations: once the platform has a room's name in another language, a translated room page is created and linked in Polylang.
 

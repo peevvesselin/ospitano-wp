@@ -204,13 +204,22 @@ add_action(
 
 /* ---------- guest chat: free rooms and prices from the platform ---------- */
 
+/** The guest's language in the chat: what the chat detected, else the page language; anything but Bulgarian is answered from the English texts. */
+function ospitano_chat_lang( $ctx = array() ) {
+	$l = (string) ( $ctx['lang'] ?? '' );
+	if ( '' === $l && function_exists( 'pll_current_language' ) ) {
+		$l = (string) pll_current_language( 'slug' );
+	}
+	return '' === $l || 'bg' === $l ? 'bg' : 'en';
+}
+
 /**
  * The guest chat asks "check_availability"; once bookings live on the platform, answer from there
  * (same shape the chat already understands, with the price the guest will really pay).
  */
 add_filter(
 	'osp_ai_run_tool',
-	function ( $result, $name, $input ) {
+	function ( $result, $name, $input, $ctx = array() ) {
 		if ( null !== $result || 'check_availability' !== $name || ! ospitano_core_is_live() ) {
 			return $result;
 		}
@@ -225,7 +234,7 @@ add_filter(
 		if ( $in < wp_date( 'Y-m-d' ) || $out <= $in ) {
 			return array( 'error' => 'Датата на настаняване трябва да е днес или по-късно, а напускането след нея.' );
 		}
-		$lang = function_exists( 'pll_current_language' ) && pll_current_language( 'slug' ) ? pll_current_language( 'slug' ) : 'bg';
+		$lang = ospitano_chat_lang( $ctx );
 		$data = ospitano_core_public(
 			'availability',
 			array(
@@ -240,7 +249,12 @@ add_filter(
 			return array( 'error' => 'Системата за резервации не отговори. Предложи на госта да провери на сайта или да се свърже с рецепцията.' );
 		}
 		$s      = ospitano_booking_settings();
-		$page   = (int) $s['results_page'] ? get_permalink( (int) $s['results_page'] ) : ( get_page_by_path( 'rezultati' ) ? get_permalink( get_page_by_path( 'rezultati' ) ) : home_url( '/' ) );
+		$pid    = (int) $s['results_page'] ? (int) $s['results_page'] : ( get_page_by_path( 'rezultati' ) ? get_page_by_path( 'rezultati' )->ID : 0 );
+		// The results page in the guest's language when the site is translated (Polylang).
+		if ( $pid && function_exists( 'pll_get_post' ) ) {
+			$pid = (int) pll_get_post( $pid, $lang ) ?: $pid;
+		}
+		$page   = $pid ? get_permalink( $pid ) : home_url( '/' );
 		$link   = add_query_arg(
 			array(
 				'mphb_check_in_date'  => $in,
@@ -304,7 +318,7 @@ add_filter(
 		);
 	},
 	10,
-	3
+	4
 );
 
 /* ---------- guest chat: the guest books in the chat, start to finish ---------- */
@@ -379,7 +393,7 @@ add_filter(
 		$services = array();
 		$codes    = array_map( 'sanitize_key', (array) ( $input['extras'] ?? array() ) );
 		if ( $codes ) {
-			$lang  = function_exists( 'pll_current_language' ) && pll_current_language( 'slug' ) ? pll_current_language( 'slug' ) : 'bg';
+			$lang  = ospitano_chat_lang( $ctx );
 			$avail = ospitano_core_public( 'availability', array( 'arrival' => $in, 'departure' => $out, 'adults' => $stay['adults'], 'children' => $stay['children'], 'lang' => $lang ) );
 			foreach ( is_wp_error( $avail ) ? array() : (array) ( $avail['services'] ?? array() ) as $sv ) {
 				if ( in_array( sanitize_key( (string) ( $sv['code'] ?? '' ) ), $codes, true ) ) {
@@ -396,7 +410,7 @@ add_filter(
 					'last_name'  => sanitize_text_field( $input['last_name'] ?? '' ),
 					'email'      => $email,
 					'phone'      => sanitize_text_field( $input['phone'] ?? '' ),
-					'language'   => function_exists( 'pll_current_language' ) && pll_current_language( 'slug' ) ? pll_current_language( 'slug' ) : null,
+					'language'   => ospitano_chat_lang( $ctx ),
 				)
 			),
 			'children_ages'  => $ages,

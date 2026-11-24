@@ -177,8 +177,8 @@ input[type=radio]:checked::before{background-color:var(--ospa-brassd)}
 
 /* ---------- Embedded booking screens ---------- */
 .ospa-embed-wrap{max-width:none;margin:10px 20px 0 2px}
-.ospa-tabs{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 12px;border-bottom:1px solid var(--ospa-sand)}
-.ospa-tab{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;margin-bottom:-1px;border:1px solid transparent;border-radius:4px 4px 0 0;color:var(--ospa-taupe);text-decoration:none;font-weight:500;font-size:13px}
+.ospa-tabs{display:flex;flex-wrap:nowrap;gap:2px;margin:0 0 12px;border-bottom:1px solid var(--ospa-sand);overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.ospa-tab{display:inline-flex;align-items:center;gap:6px;padding:10px 11px;margin-bottom:-1px;white-space:nowrap;flex:none;border:1px solid transparent;border-radius:4px 4px 0 0;color:var(--ospa-taupe);text-decoration:none;font-weight:500;font-size:13px}
 .ospa-tab .dashicons{font-size:16px;width:16px;height:16px;color:var(--ospa-stone)}
 .ospa-tab:hover,.ospa-tab:focus{color:var(--ospa-ink)}
 .ospa-tab.is-active{background:#fff;border-color:var(--ospa-sand);border-bottom-color:#fff;color:var(--ospa-ink)}

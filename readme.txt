@@ -34,6 +34,9 @@ Shortcode options: `[ospitano_booking hotel="your-code" lang="en"]`.
 
 == Changelog ==
 
+= 1.4.3 =
+* Mila and Milcho's Claude use (token counts only) is added up per day and sent to the OSPITANO platform every hour, so the OSPITANO team sees each hotel's AI cost.
+
 = 1.4.2 =
 * Removes the translated room pages from 1.4.1. The site's language plugin keeps room pages shared and shows them in English through ?lang=en, so separate pages are not needed.
 

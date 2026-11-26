@@ -34,6 +34,10 @@ Shortcode options: `[ospitano_booking hotel="your-code" lang="en"]`.
 
 == Changelog ==
 
+= 1.5.0 =
+* Mila books salon and SPA appointments in the chat: finds free times (and the next free days when one is full), books with a specialist or anyone, takes visit card and voucher codes, gives the payment link when a deposit is due, and puts the guest on the waiting list.
+* [ospitano_spa category="..."] shows one group of services only.
+
 = 1.4.3 =
 * Mila and Milcho's Claude use (token counts only) is added up per day and sent to the OSPITANO platform every hour, so the OSPITANO team sees each hotel's AI cost.
 

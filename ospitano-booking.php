@@ -3,7 +3,7 @@
  * Plugin Name:       OSPITANO Booking
  * Plugin URI:        https://ospitano.eu/
  * Description:       Online booking form for hotels on the OSPITANO booking platform. Adds a shortcode and a block.
- * Version:           1.4.3
+ * Version:           1.5.0
  * Requires at least: 6.3
  * Requires PHP:      7.4
  * Author:            OSPITANO
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OSPITANO_BOOKING_VERSION', '1.4.3' );
+define( 'OSPITANO_BOOKING_VERSION', '1.5.0' );
 define( 'OSPITANO_BOOKING_DEFAULT_CORE', 'https://core.ospitano.eu' );
 
 /**
@@ -82,8 +82,10 @@ function ospitano_booking_element( $tag, $atts, $shortcode ) {
 	$settings = ospitano_booking_settings();
 	$atts     = shortcode_atts(
 		array(
-			'hotel' => $settings['hotel'],
-			'lang'  => $settings['lang'],
+			'hotel'    => $settings['hotel'],
+			'lang'     => $settings['lang'],
+			// [ospitano_spa category="Коса"]: only one group of services (one page per group).
+			'category' => '',
 		),
 		$atts,
 		$shortcode
@@ -103,13 +105,19 @@ function ospitano_booking_element( $tag, $atts, $shortcode ) {
 		$style = ' style="--osp-accent:' . esc_attr( $settings['accent'] ) . ';--osp-accent-dark:' . esc_attr( $settings['accent'] ) . '"';
 	}
 
+	$extra = '';
+	if ( 'ospitano-spa' === $tag && '' !== trim( (string) $atts['category'] ) ) {
+		$extra = ' category="' . esc_attr( sanitize_text_field( $atts['category'] ) ) . '"';
+	}
+
 	return sprintf(
-		'<%1$s hotel="%2$s" lang="%3$s" api="%4$s"%5$s></%1$s>',
+		'<%1$s hotel="%2$s" lang="%3$s" api="%4$s"%5$s%6$s></%1$s>',
 		$tag,
 		esc_attr( sanitize_title( $atts['hotel'] ) ),
 		esc_attr( ospitano_booking_language( $atts['lang'] ) ),
 		esc_attr( $core ),
-		$style
+		$style,
+		$extra
 	);
 }
 
@@ -163,4 +171,5 @@ require_once __DIR__ . '/includes/migrate-export.php';
 require_once __DIR__ . '/includes/site.php';
 require_once __DIR__ . '/includes/rooms.php';
 require_once __DIR__ . '/includes/core-link.php';
+require_once __DIR__ . '/includes/appointments-chat.php';
 require_once __DIR__ . '/includes/ai-usage.php';
